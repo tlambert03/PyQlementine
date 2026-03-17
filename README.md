@@ -36,34 +36,19 @@ This is a monorepo with two packages:
 ### Quick start (using [just](https://github.com/casey/just))
 
 ```sh
-just install          # install Qt, build & install PyQt6 package
-just install-pyside6  # build & install PySide6 package
+just install-pyqt6    # build & install PyQt6-Qlementine package
+just install-pyside6  # build & install PySide6-Qlementine package
 ```
 
-### Manual setup
-
-Install Qt locally (required for building the C++ bindings):
+Run tests
 
 ```sh
-uvx --from aqtinstall aqt install-qt mac desktop 6.8.1 --outputdir Qt
-```
-
-Build and test the PyQt6 package:
-
-```sh
-uv sync --no-editable
 uv run pytest
-```
-
-Build the PySide6 package:
-
-```sh
-uv pip install shiboken6-generator==6.8.1
-uv pip install packages/PySide6-Qlementine
 ```
 
 ### Build wheels with cibuildwheel
 
 ```sh
-QT_VERSION=6.8.1 uvx cibuildwheel --config-file pyproject.toml packages/PyQt6-Qlementine
+just build-wheel PyQt6
+just build-wheel PySide6
 ```

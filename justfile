@@ -1,16 +1,15 @@
-qt_version := "6.8.1"
 host := if os() == "macos" { "mac" } else if os() == "windows" { "windows" } else { "linux" }
 export UV_NO_EDITABLE := "1"
 
 @_default:
-    just --list
+    @just --list
 
 # install (re)-build pyqt6-qlementine
 install-pyqt6: _clone install-qt
     uv sync --group pyqt6 --reinstall-package pyqt6-qlementine
 
 # install (re)-build pyside6-qlementine
-install-pyside6: _clone install-qt
+install-pyside6: _clone (install-qt "6.10.2")
     uv sync --group pyside6 --reinstall-package pyside6-qlementine
 
 # Clean build artifacts
@@ -27,11 +26,12 @@ build-wheel target="PyQt6":
     if echo "{{target}}" | grep -qi pyside; then
         export QT_VERSION=6.10.2
     else
-        export QT_VERSION={{qt_version}}
+        export QT_VERSION=6.8.1
     fi
+    @just install-qt qt_version=$QT_VERSION
     uvx cibuildwheel --config-file pyproject.toml packages/{{target}}-Qlementine
 
-install-qt:
+install-qt qt_version="6.8.1":
     #!/usr/bin/env sh
     if [ -d "Qt/{{ qt_version }}" ]; then
         echo "Qt {{ qt_version }} already installed"

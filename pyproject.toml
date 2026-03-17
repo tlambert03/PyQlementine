@@ -3,7 +3,6 @@ name = "PyQlementine"
 requires-python = ">=3.10"
 version = "0.0.1"
 
-
 [tool.uv]
 package = false
 
@@ -17,10 +16,7 @@ PySide6-Qlementine = { workspace = true }
 [dependency-groups]
 pyside6 = ["PySide6-Qlementine"]
 pyqt6 = ["PyQt6-Qlementine"]
-test = [
-    "pytest>=8.3.4",
-    "pytest-qt>=4.5.0",
-]
+test = ["pytest>=8.3.4"]
 dev = [
 	{ "include-group" = "test" },
 	"ruff>=0.9.8",
