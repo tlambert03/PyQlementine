@@ -30,13 +30,22 @@ jobs:
   build-wheels:
     name: ${{ matrix.os }} ${{ matrix.package }}
     runs-on: ${{ matrix.os }}
-    env:
-      QT_VERSION: "6.8.0"  # used in cibuildwheel
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         package: [PyQt6-Qlementine, PySide6-Qlementine]
+        include:
+          # PyQt6 builds against Qt 6.8.1
+          - package: PyQt6-Qlementine
+            qt_version: "6.8.1"
+          # PySide6 6.10 headers require Qt >= 6.10
+          - package: PySide6-Qlementine
+            qt_version: "6.10.2"
+            # PySide6 6.10 only publishes manylinux_2_34 wheels
+            cibw_manylinux: "manylinux_2_34"
+    env:
+      QT_VERSION: ${{ matrix.qt_version }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -44,13 +53,12 @@ jobs:
           fetch-depth: 0
       - uses: astral-sh/setup-uv@v7
       - uses: ilammy/msvc-dev-cmd@v1
-        with:
-          toolset: 14.29
 
       - name: Build wheels via cibuildwheel
         uses: pypa/cibuildwheel@v3.4
         env:
           CIBW_VERBOSE: 1
+          CIBW_MANYLINUX_X86_64_IMAGE: ${{ matrix.cibw_manylinux || 'manylinux_2_28' }}
         with:
           package-dir: packages/${{ matrix.package }}
           config-file: pyproject.toml
@@ -58,7 +66,7 @@ jobs:
       - name: Upload wheels artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: cibw-wheels-${{ runner.os }}-${{ runner.arch }}
+          name: cibw-wheels-${{ matrix.package }}-${{ runner.os }}-${{ runner.arch }}
           path: ./wheelhouse/*.whl
 
   publish:

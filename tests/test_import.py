@@ -34,8 +34,6 @@ def qapp(pytestconfig):
     if (app := qapp_cls.instance()) is None:
         global _qapp_instance
         _qapp_instance = qapp_cls([])
-        name = pytestconfig.getini("qt_qapp_name")
-        _qapp_instance.setApplicationName(name)
         return _qapp_instance
     else:
         if not isinstance(app, qapp_cls):
