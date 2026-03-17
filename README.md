@@ -73,7 +73,7 @@ class MainWindow(QMainWindow):
 To build the wheel locally, use cibuildwheel:
 
 ```sh
-QT_VERSION=6.8.0 uvx cibuildwheel
+QT_VERSION=6.8.1 uvx cibuildwheel
 ```
 
 or

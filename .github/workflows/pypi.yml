@@ -16,9 +16,12 @@ jobs:
         with:
           submodules: "recursive"
           fetch-depth: 0
-      - uses: hynek/build-and-inspect-python-package@v2
+      - uses: astral-sh/setup-uv@v5
+      - run: uv build --package PyQt6-Qlementine --sdist --out-dir dist
+      - uses: actions/upload-artifact@v4
         with:
-          skip-wheel: true
+          name: Packages
+          path: dist/*.tar.gz
 
   build-wheels:
     name: ${{ matrix.os }} wheel

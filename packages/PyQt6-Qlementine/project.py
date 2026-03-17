@@ -6,6 +6,16 @@ from pathlib import Path
 
 from pyqtbuild import PyQtBindings, PyQtProject, QmakeBuilder
 
+def _find_repo_root() -> Path:
+    """Walk up from this file to find the repo root (contains qlementine/)."""
+    d = Path(__file__).resolve().parent
+    while d != d.parent:
+        if (d / "qlementine").is_dir():
+            return d
+        d = d.parent
+    raise RuntimeError("Could not find repo root (no qlementine/ directory found)")
+
+
 _AGL_PATTERNS = [
     re.compile(r"\s*-framework\s+AGL\b"),
     re.compile(r";-framework AGL\b"),
@@ -82,11 +92,12 @@ class PyQt6Qlementine(PyQtProject):
     def apply_user_defaults(self, tool):
         if tool == "sdist":
             return super().apply_user_defaults(tool)
+        repo_root = _find_repo_root()
         qmake_path = "bin/qmake"
         if os.name == "nt":
             qmake_path += ".exe"
         try:
-            qmake_bin = str(next(Path(self.root_dir).rglob(qmake_path)).absolute())
+            qmake_bin = str(next(repo_root.rglob(qmake_path)).absolute())
         except StopIteration:
             raise RuntimeError(
                 "qmake not found.\n"
@@ -113,14 +124,14 @@ class PyQt6Qlementinemod(PyQtBindings):
         super().__init__(project, "PyQt6Qlementine")
 
     def apply_user_defaults(self, tool):
-        root = self.project.root_dir
+        repo_root = str(_find_repo_root())
         # add Qt resource files
         for qrc in [
             "qlementine/lib/resources/qlementine.qrc",
             "qlementine/lib/resources/qlementine_font_inter.qrc",
             "qlementine/lib/resources/qlementine_font_roboto.qrc",
         ]:
-            resource_file = os.path.join(root, qrc)
+            resource_file = os.path.join(repo_root, qrc)
             self.builder_settings.append("RESOURCES += " + resource_file)
 
         # enable C++17 and suppress -Werror from qlementine headers
