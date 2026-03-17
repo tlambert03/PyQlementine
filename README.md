@@ -75,3 +75,11 @@ To build the wheel locally, use cibuildwheel:
 ```sh
 QT_VERSION=6.8.0 uvx cibuildwheel
 ```
+
+or
+
+```sh
+export UV_NO_EDITABLE=1
+uv sync
+uv run pytest
+```
