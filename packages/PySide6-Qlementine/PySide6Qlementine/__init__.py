@@ -3,12 +3,25 @@ from __future__ import annotations
 import sys
 
 if sys.platform == "win32":
+    import os
+
     try:
-        import PySide6  # force Qt6/bin DLL directory registration
+        import PySide6
+        import shiboken6
     except ImportError:
         raise ImportError(
             "PySide6 must be installed to use PySide6Qlementine."
         ) from None
-    del PySide6
+
+    # Register DLL directories for Qt, PySide6, and shiboken6
+    for _mod in (PySide6, shiboken6):
+        _dir = os.path.dirname(_mod.__file__)
+        os.add_dll_directory(_dir)
+    # Qt DLLs may be in PySide6/Qt/bin on Windows
+    _qt_bin = os.path.join(os.path.dirname(PySide6.__file__), "Qt", "bin")
+    if os.path.isdir(_qt_bin):
+        os.add_dll_directory(_qt_bin)
+
+    del PySide6, shiboken6, os, _mod, _dir, _qt_bin
 
 from .PySide6Qlementine import *  # noqa: F403

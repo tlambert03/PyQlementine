@@ -44,6 +44,7 @@ test-requires = ["pytest>=8.3.4"]
 
 [tool.cibuildwheel.linux]
 environment-pass = ["QT_VERSION"]
+environment = { LLVM_INSTALL_DIR = "/usr" }
 before-build = [
 	"yum install -y libxkbcommon-devel libxslt clang",
 	"uvx --from aqtinstall==3.2.0 aqt install-qt linux desktop $QT_VERSION --outputdir Qt --base http://mirrors.ocf.berkeley.edu/qt/",
