@@ -124,38 +124,3 @@ sources = [
 	"../../qlementine/lib/src/widgets/Switch.cpp",
 ]
 
-
-[tool.cibuildwheel]
-build-verbosity = 1
-build = [
-	"cp310-win_amd64",
-	"cp310-manylinux_x86_64",
-	"cp310-macosx_x86_64",
-	"cp310-macosx_arm64",
-]
-manylinux-x86_64-image = "manylinux_2_28"
-build-frontend = "build[uv]"
-test-command = "pytest {project}/tests -v"
-test-requires = ["pytest>=8.3.4"]
-
-[tool.cibuildwheel.linux]
-environment-pass = ["QT_VERSION"]
-before-build = [
-	"yum install -y libxkbcommon-devel",
-	"uvx --from aqtinstall==3.2.0 aqt install-qt linux desktop $QT_VERSION --outputdir Qt --base http://mirrors.ocf.berkeley.edu/qt/",
-]
-repair-wheel-command = ["python scripts/repair_wheel.py {dest_dir} {wheel}"]
-test-command = [
-	"yum install -y epel-release",
-	"yum install -y libxkbcommon-x11 xcb-util-cursor xcb-util-wm xcb-util-keysyms xorg-x11-server-Xvfb",
-	"uv pip install pytest-xvfb",
-	"pytest {project}/tests -v",
-]
-
-[tool.cibuildwheel.macos]
-before-build = "uvx --from aqtinstall==3.2.0 aqt install-qt mac desktop $QT_VERSION --outputdir Qt --base http://mirrors.ocf.berkeley.edu/qt/"
-repair-wheel-command = ["python scripts/repair_wheel.py {dest_dir} {wheel}"]
-
-[tool.cibuildwheel.windows]
-before-build = "uvx --from aqtinstall==3.2.0 aqt install-qt windows desktop %QT_VERSION% win64_msvc2019_64 --outputdir Qt --base http://mirrors.ocf.berkeley.edu/qt/"
-

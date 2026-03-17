@@ -1,7 +1,6 @@
 qt_version := "6.8.1"
 host := if os() == "macos" { "mac" } else if os() == "windows" { "windows" } else { "linux" }
 export UV_NO_EDITABLE := "1"
-export QT_VERSION := qt_version
 
 @_default:
     just --list
@@ -23,8 +22,14 @@ demo:
     uv run examples/demo.py
 
 # build wheel (into ./wheelhouse)
-build-wheel:
-    uvx cibuildwheel --config-file pyproject.toml packages/PyQt6-Qlementine
+build-wheel target="PyQt6":
+    #!/usr/bin/env sh
+    if echo "{{target}}" | grep -qi pyside; then
+        export QT_VERSION=6.10.2
+    else
+        export QT_VERSION={{qt_version}}
+    fi
+    uvx cibuildwheel --config-file pyproject.toml packages/{{target}}-Qlementine
 
 install-qt:
     #!/usr/bin/env sh
