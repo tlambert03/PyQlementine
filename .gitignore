@@ -125,3 +125,4 @@ persist/perspectives.ini
 aqtinstall.log
 wheelhouse/
 uv.lock
+packages/PySide6-Qlementine/_build/

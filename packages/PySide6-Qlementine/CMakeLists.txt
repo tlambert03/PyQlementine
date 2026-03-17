@@ -9,25 +9,17 @@ set(CMAKE_AUTORCC ON)
 # ---- Find Python ----
 find_package(Python REQUIRED COMPONENTS Interpreter Development.Module)
 
-# ---- Detect PySide6/Shiboken6 paths from Python ----
+# ---- Detect site-packages for Shiboken6Tools ----
 execute_process(
     COMMAND ${Python_EXECUTABLE} -c
         "import sysconfig; print(sysconfig.get_path('purelib'))"
     OUTPUT_VARIABLE PYTHON_SITE_PACKAGES
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
-set(PYSIDE6_DIR "${PYTHON_SITE_PACKAGES}/PySide6")
-set(PYSIDE6_INCLUDE_DIR "${PYSIDE6_DIR}/include")
-set(PYSIDE6_TYPESYSTEMS "${PYSIDE6_DIR}/typesystems")
-set(SHIBOKEN6_DIR "${PYTHON_SITE_PACKAGES}/shiboken6")
-set(SHIBOKEN6_GENERATOR_DIR "${PYTHON_SITE_PACKAGES}/shiboken6_generator")
-# Headers may be in shiboken6_generator/include (6.8) or shiboken6/include (6.10+)
-if(EXISTS "${SHIBOKEN6_GENERATOR_DIR}/include/shiboken.h")
-    set(SHIBOKEN6_INCLUDE_DIR "${SHIBOKEN6_GENERATOR_DIR}/include")
-else()
-    set(SHIBOKEN6_INCLUDE_DIR "${SHIBOKEN6_DIR}/include")
-endif()
-set(SHIBOKEN6_BIN "${SHIBOKEN6_GENERATOR_DIR}/shiboken6")
+# Shiboken6ToolsConfig.cmake auto-discovers PySide6/shiboken6 from here
+list(APPEND CMAKE_PREFIX_PATH
+    "${PYTHON_SITE_PACKAGES}/shiboken6_generator/lib/cmake"
+)
 
 # ---- Find Qt6 ----
 # Auto-detect Qt from repo-level Qt/ directory (installed by aqtinstall)
@@ -155,37 +147,10 @@ target_include_directories(qlementine_static
 target_link_libraries(qlementine_static PUBLIC Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Svg)
 target_compile_options(qlementine_static PRIVATE -Wno-error -Wno-overloaded-virtual)
 
-# ---- Run shiboken6 to generate wrapper sources ----
+# ---- Generate PySide6 bindings via Shiboken6Tools ----
+find_package(Shiboken6Tools REQUIRED)
+
 set(GENERATED_DIR "${CMAKE_CURRENT_BINARY_DIR}/PySide6Qlementine")
-file(MAKE_DIRECTORY ${GENERATED_DIR})
-
-set(WRAPPED_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/bindings.h")
-set(TYPESYSTEM "${CMAKE_CURRENT_SOURCE_DIR}/bindings.xml")
-
-# Get Qt include paths for shiboken
-get_target_property(QT_CORE_INCLUDES Qt6::Core INTERFACE_INCLUDE_DIRECTORIES)
-get_target_property(QT_GUI_INCLUDES Qt6::Gui INTERFACE_INCLUDE_DIRECTORIES)
-get_target_property(QT_WIDGETS_INCLUDES Qt6::Widgets INTERFACE_INCLUDE_DIRECTORIES)
-get_target_property(QT_SVG_INCLUDES Qt6::Svg INTERFACE_INCLUDE_DIRECTORIES)
-
-# Build include path arguments for shiboken
-set(SHIBOKEN_INCLUDE_ARGS "")
-foreach(inc ${QT_CORE_INCLUDES} ${QT_GUI_INCLUDES} ${QT_WIDGETS_INCLUDES} ${QT_SVG_INCLUDES})
-    list(APPEND SHIBOKEN_INCLUDE_ARGS "-I${inc}")
-endforeach()
-list(REMOVE_DUPLICATES SHIBOKEN_INCLUDE_ARGS)
-
-# Framework include paths for macOS
-if(APPLE)
-    get_target_property(QT_CORE_LOC Qt6::Core LOCATION)
-    get_filename_component(QT_LIB_DIR ${QT_CORE_LOC} DIRECTORY)
-    # Go up from QtCore.framework/Versions/A/QtCore to the lib dir
-    get_filename_component(QT_LIB_DIR "${QT_LIB_DIR}/../../.." ABSOLUTE)
-    set(SHIBOKEN_FRAMEWORK_ARGS "-F${QT_LIB_DIR}")
-else()
-    set(SHIBOKEN_FRAMEWORK_ARGS "")
-endif()
-
 set(WRAPPER_SOURCES
     ${GENERATED_DIR}/pyside6qlementine_module_wrapper.cpp
     ${GENERATED_DIR}/oclero_qlementine_aboutdialog_wrapper.cpp
@@ -216,70 +181,54 @@ set(WRAPPER_SOURCES
     ${GENERATED_DIR}/oclero_qlementine_thememeta_wrapper.cpp
 )
 
+# Compute Qt framework search path for shiboken on macOS
+# (the Shiboken6Tools macro computes this incorrectly for aqt-installed Qt)
+set(SHIBOKEN_EXTRA "")
+if(APPLE)
+    get_target_property(_qtcore_loc Qt6::Core LOCATION)
+    get_filename_component(_qt_fw_dir "${_qtcore_loc}/../../.." ABSOLUTE)
+    get_filename_component(_qt_lib_dir "${_qt_fw_dir}/.." ABSOLUTE)
+    list(APPEND SHIBOKEN_EXTRA "--framework-include-paths=${_qt_lib_dir}")
+endif()
+
+shiboken_generator_create_binding(
+    EXTENSION_TARGET PySide6Qlementine
+    GENERATED_SOURCES ${WRAPPER_SOURCES}
+    HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/bindings.h
+    TYPESYSTEM_FILE ${CMAKE_CURRENT_SOURCE_DIR}/bindings.xml
+    LIBRARY_TARGET qlementine_static
+    QT_MODULES Core Gui Widgets Svg
+    SHIBOKEN_EXTRA_OPTIONS -I${QLEMENTINE_INCLUDE} ${SHIBOKEN_EXTRA}
+    FORCE_LIMITED_API
+)
+
+# Work around shiboken6 bug: namespace-level enum converters are emitted once
+# per wrapped type instead of once globally. Deduplicate after generation.
+set(MODULE_WRAPPER "${GENERATED_DIR}/pyside6qlementine_module_wrapper.cpp")
+set(DEDUP_STAMP "${GENERATED_DIR}/.dedup_stamp")
 add_custom_command(
-    OUTPUT ${WRAPPER_SOURCES}
-    COMMAND ${SHIBOKEN6_BIN}
-        --generator-set=shiboken
-        --enable-parent-ctor-heuristic
-        --enable-pyside-extensions
-        --enable-return-value-heuristic
-        --use-isnull-as-nb-bool
-        --avoid-protected-hack
-        -I${QLEMENTINE_INCLUDE}
-        -I${QLEMENTINE_PRIVATE_INCLUDE}
-        -I${PYSIDE6_INCLUDE_DIR}
-        ${SHIBOKEN_INCLUDE_ARGS}
-        ${SHIBOKEN_FRAMEWORK_ARGS}
-        -T${PYSIDE6_TYPESYSTEMS}
-        -T${CMAKE_CURRENT_SOURCE_DIR}
-        --output-directory=${CMAKE_CURRENT_BINARY_DIR}
-        ${WRAPPED_HEADER}
-        ${TYPESYSTEM}
-    DEPENDS ${WRAPPED_HEADER} ${TYPESYSTEM}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    COMMENT "Running shiboken6 to generate PySide6Qlementine wrappers"
+    OUTPUT ${DEDUP_STAMP}
+    COMMAND ${Python_EXECUTABLE}
+        "${CMAKE_CURRENT_SOURCE_DIR}/scripts/dedup_enums.py"
+        "${MODULE_WRAPPER}"
+    COMMAND ${CMAKE_COMMAND} -E touch "${DEDUP_STAMP}"
+    DEPENDS ${MODULE_WRAPPER}
+    COMMENT "Deduplicating enum converters in module wrapper"
 )
+add_custom_target(dedup_enums DEPENDS ${DEDUP_STAMP})
+add_dependencies(PySide6Qlementine dedup_enums)
 
-# Build the Python extension module
-Python_add_library(PySide6Qlementine MODULE ${WRAPPER_SOURCES})
-
-target_include_directories(PySide6Qlementine PRIVATE
-    ${GENERATED_DIR}
-    ${QLEMENTINE_INCLUDE}
-    ${QLEMENTINE_PRIVATE_INCLUDE}
-    ${PYSIDE6_INCLUDE_DIR}
-    ${PYSIDE6_INCLUDE_DIR}/QtCore
-    ${PYSIDE6_INCLUDE_DIR}/QtGui
-    ${PYSIDE6_INCLUDE_DIR}/QtWidgets
-    ${PYSIDE6_INCLUDE_DIR}/QtSvg
-    ${SHIBOKEN6_INCLUDE_DIR}
-    ${Python_INCLUDE_DIRS}
-)
-
-# Link against libshiboken6/libpyside6 — the dylib ABI version (e.g. 6.8) is
-# stable across all patch releases within a minor series, so we pin the runtime
-# dependency to PySide6>=6.8,<6.9 to ensure the dylib name matches.
-file(GLOB SHIBOKEN6_LIB "${SHIBOKEN6_DIR}/libshiboken6*${CMAKE_SHARED_LIBRARY_SUFFIX}")
-file(GLOB PYSIDE6_LIB "${PYSIDE6_DIR}/libpyside6.abi3*${CMAKE_SHARED_LIBRARY_SUFFIX}")
+# Add generated wrapper dir to include path (for generated *_python.h headers)
+target_include_directories(PySide6Qlementine PRIVATE ${GENERATED_DIR})
 
 # Force-load the static library to keep all symbols (moc staticMetaObjects etc.)
 if(APPLE)
-    target_link_libraries(PySide6Qlementine PRIVATE
-        -Wl,-force_load $<TARGET_FILE:qlementine_static>
-        Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Svg
-        ${SHIBOKEN6_LIB} ${PYSIDE6_LIB}
+    target_link_options(PySide6Qlementine PRIVATE
+        "LINKER:-force_load,$<TARGET_FILE:qlementine_static>"
     )
 elseif(UNIX)
-    target_link_libraries(PySide6Qlementine PRIVATE
-        -Wl,--whole-archive qlementine_static -Wl,--no-whole-archive
-        Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Svg
-        ${SHIBOKEN6_LIB} ${PYSIDE6_LIB}
-    )
-else()
-    target_link_libraries(PySide6Qlementine PRIVATE
-        qlementine_static
-        Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Svg
-        ${SHIBOKEN6_LIB} ${PYSIDE6_LIB}
+    target_link_options(PySide6Qlementine PRIVATE
+        "LINKER:--whole-archive" "$<TARGET_FILE:qlementine_static>" "LINKER:--no-whole-archive"
     )
 endif()
 

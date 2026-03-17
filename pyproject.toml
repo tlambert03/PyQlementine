@@ -17,12 +17,16 @@ PySide6-Qlementine = { workspace = true }
 [dependency-groups]
 pyside6 = ["PySide6-Qlementine"]
 pyqt6 = ["PyQt6-Qlementine"]
-test = ["pytest>=8.3.4"]
+test = [
+    "pytest>=8.3.4",
+    "pytest-qt>=4.5.0",
+]
 dev = [
 	{ "include-group" = "test" },
 	"ruff>=0.9.8",
 	"aqtinstall>=3.2.0",
 	"prek>=0.3.1",
+	"typing_extensions",
 ]
 
 [tool.cibuildwheel]
