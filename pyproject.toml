@@ -1,17 +1,17 @@
 # Specify the build system.
 [build-system]
-requires = ["sip >=6,<7", "PyQt-builder >=1.17,<2", "PyQt6==6.5.3", "ruff"]
+requires = ["sip >=6,<7", "PyQt-builder >=1.17,<2", "PyQt6==6.8.1", "ruff"]
 build-backend = "sipbuild.api"
 
 # Specify the PEP 566 metadata for the project.
 [project]
 name = "PyQt6Qlementine"
 version = "1.4.2"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 description = "Python bindings for Qlementine, a modern QStyle for desktop Qt6 applications"
 license = { text = "MIT" }
 readme = "README.md"
-dependencies = ["PyQt6>=6.5.3,!=6.6"]
+dependencies = ["PyQt6>=6.8.0"]
 classifiers = [
 	"Development Status :: 3 - Alpha",
 	"Intended Audience :: Developers",
@@ -31,7 +31,7 @@ Upstream = "https://github.com/oclero/qlementine"
 Homepage = "https://github.com/pyapp-kit/PyQt6Qlementine"
 
 [dependency-groups]
-build = ["sip >=6,<7", "PyQt-builder >=1.17,<2", "PyQt6==6.5.3", "PyQt6-Qt6==6.5.3"]
+build = ["sip >=6,<7", "PyQt-builder >=1.17,<2", "PyQt6==6.8.1", "PyQt6-Qt6==6.8.2"]
 test = ["pytest>=8.3.4"]
 dev = [
 	{ "include-group" = "build" },
@@ -84,6 +84,8 @@ headers = [
 	"qlementine/lib/include/oclero/qlementine/widgets/SegmentedControl.hpp",
 	"qlementine/lib/include/oclero/qlementine/widgets/StatusBadgeWidget.hpp",
 	"qlementine/lib/include/oclero/qlementine/widgets/Switch.hpp",
+	# internal header needing moc (has Q_OBJECT)
+	"qlementine/lib/src/style/eventFilters/WidgetWithFocusFrameEventFilter.hpp",
 ]
 sources = [
 	"qlementine/lib/src/animation/WidgetAnimationManager.cpp",
@@ -136,10 +138,10 @@ sources = [
 [tool.cibuildwheel]
 build-verbosity = 1
 build = [
-	"cp39-win_amd64",
-	"cp39-manylinux_x86_64",
-	"cp39-macosx_x86_64",
-	"cp39-macosx_arm64",
+	"cp310-win_amd64",
+	"cp310-manylinux_x86_64",
+	"cp310-macosx_x86_64",
+	"cp310-macosx_arm64",
 ]
 manylinux-x86_64-image = "manylinux_2_28"
 build-frontend = "build[uv]"
@@ -195,8 +197,3 @@ select = [
 # https://docs.astral.sh/ruff/formatter/
 [tool.ruff.format]
 docstring-code-format = true
-
-[tool.uv]
-# Packages are built and installed into the virtual environment in editable mode
-# but sipbuild.api does not support editable installs.
-package = false

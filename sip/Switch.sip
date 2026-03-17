@@ -28,6 +28,9 @@ signals:
     void checkStateChanged(int);
     void tristateChanged(bool);
     void showAccessibilitySymbolsChanged(bool);
+
+protected:
+    void paintEvent(QPaintEvent* e);
 };
 
 };

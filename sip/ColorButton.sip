@@ -26,6 +26,9 @@ public:
 signals:
     void colorChanged();
     void colorModeChanged();
+
+protected:
+    void paintEvent(QPaintEvent* e);
 };
 
 };

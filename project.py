@@ -1,9 +1,31 @@
 import os
+import platform
 import re
 import shutil
 from pathlib import Path
 
 from pyqtbuild import PyQtBindings, PyQtProject, QmakeBuilder
+
+_AGL_PATTERNS = [
+    re.compile(r"\s*-framework\s+AGL\b"),
+    re.compile(r";-framework AGL\b"),
+    re.compile(r"\s*/System/Library/Frameworks/AGL\.framework/Headers/?"),
+]
+
+
+def _patch_agl_framework(qt_prefix: Path) -> None:
+    """Remove references to the deprecated AGL framework from Qt config files."""
+    targets = list(qt_prefix.rglob("mkspecs/**/*.conf"))
+    targets += list(qt_prefix.rglob("mkspecs/**/*.pri"))
+    targets += list(qt_prefix.rglob("lib/**/*.prl"))
+    for path in targets:
+        text = path.read_text()
+        patched = text
+        for pat in _AGL_PATTERNS:
+            patched = pat.sub("", patched)
+        if patched != text:
+            print(f"Patching AGL references in {path}")
+            path.write_text(patched)
 
 
 class _Builder(QmakeBuilder):
@@ -72,6 +94,11 @@ class PyQt6Qlementine(PyQtProject):
             )
         print(f"USING QMAKE: {qmake_bin}")
         self.builder.qmake = qmake_bin
+
+        # AGL framework was removed in newer macOS SDKs; patch Qt mkspecs
+        if platform.system() == "Darwin":
+            _patch_agl_framework(Path(qmake_bin).parents[1])
+
         return super().apply_user_defaults(tool)
 
     def build_wheel(self, wheel_directory):

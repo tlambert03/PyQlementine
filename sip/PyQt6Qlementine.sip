@@ -1,6 +1,6 @@
 %Module(name=PyQt6Qlementine._qlementine, call_super_init=True, keyword_arguments="Optional", use_limited_api=True)
 %HideNamespace(name=oclero)
-%HideNamespace(name=qlementine)
+%HideNamespace(name=oclero::qlementine)
 
 %Import QtCore/QtCoremod.sip
 %Import QtWidgets/QtWidgetsmod.sip

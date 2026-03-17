@@ -24,7 +24,7 @@ jobs:
     name: ${{ matrix.os }} wheel
     runs-on: ${{ matrix.os }}
     env:
-      QT_VERSION: "6.5.3"  # used in cibuildwheel
+      QT_VERSION: "6.8.0"  # used in cibuildwheel
     strategy:
       fail-fast: false
       matrix:
