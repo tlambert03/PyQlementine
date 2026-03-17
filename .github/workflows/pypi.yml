@@ -12,13 +12,13 @@ jobs:
     name: 🐍 sdist
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: "recursive"
           fetch-depth: 0
-      - uses: astral-sh/setup-uv@v5
-      - run: uv build --package PyQt6-Qlementine --sdist --out-dir dist
-      - uses: actions/upload-artifact@v4
+      - uses: astral-sh/setup-uv@v7
+      - run: uv build --all-packages --sdist --out-dir dist
+      - uses: actions/upload-artifact@v7
         with:
           name: Packages
           path: dist/*.tar.gz
@@ -32,24 +32,27 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-15-intel, macos-latest]
+        package: [PyQt6-Qlementine, PySide6-Qlementine]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: "recursive"
           fetch-depth: 0
-      - uses: astral-sh/setup-uv@v5
+      - uses: astral-sh/setup-uv@v7
       - uses: ilammy/msvc-dev-cmd@v1
         with:
           toolset: 14.29
 
       - name: Build wheels via cibuildwheel
-        uses: pypa/cibuildwheel@v2.22
+        uses: pypa/cibuildwheel@v3.4
+        env:
+          CIBW_VERBOSE: 1
         with:
-          package-dir: packages/PyQt6-Qlementine
+          package-dir: packages/${{ matrix.package }}
           config-file: pyproject.toml
 
       - name: Upload wheels artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cibw-wheels-${{ runner.os }}-${{ runner.arch }}
           path: ./wheelhouse/*.whl
@@ -64,12 +67,12 @@ jobs:
       contents: write
     steps:
       - name: Get sdist
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: Packages
           path: dist
       - name: Get wheels
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: cibw-wheels-*
           path: dist
