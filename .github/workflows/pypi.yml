@@ -35,7 +35,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-15-intel, macos-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
         package: [PyQt6-Qlementine, PySide6-Qlementine]
     steps:
       - uses: actions/checkout@v6
