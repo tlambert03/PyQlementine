@@ -192,6 +192,81 @@ def _to_camel_case_dict(d: dict[str, Any]) -> dict[str, Any]:
     return out
 
 
+# ─── Qlementine built-in dark ────────────────────────────────────────
+#
+# Direct transcription of qlementine/showcase/resources/themes/dark.json
+
+QLEMENTINE_DARK = Theme(
+    meta=ThemeMeta(name="Dark", version="1.5.0", author="Olivier Cléro"),
+    background_color_main1="#1F2127",
+    background_color_main2="#282B33",
+    background_color_main3="#333848",
+    background_color_main4="#333848",
+    background_color_workspace="#17181C",
+    background_color_tab_bar="#1E2026",
+    neutral_color="#4C5368",
+    neutral_color_hovered="#535C78",
+    neutral_color_pressed="#5B6688",
+    neutral_color_disabled="#2D313B",
+    focus_color="#3097FF6A",
+    primary_color="#5086FF",
+    primary_color_hovered="#6494FF",
+    primary_color_pressed="#7AA3FF",
+    primary_color_disabled="#2C3448",
+    primary_color_foreground="#FFFFFF",
+    primary_color_foreground_hovered="#FFFFFF",
+    primary_color_foreground_pressed="#FFFFFF",
+    primary_color_foreground_disabled="#455170",
+    primary_alternative_color="#3161F8",
+    primary_alternative_color_hovered="#4571FE",
+    primary_alternative_color_pressed="#5A82FF",
+    primary_alternative_color_disabled="#293346",
+    secondary_color="#FFFFFF",
+    secondary_color_hovered="#D5D5D5",
+    secondary_color_pressed="#EBEBEB",
+    secondary_color_disabled="#FFFFFF33",
+    secondary_color_foreground="#282B33",
+    secondary_color_foreground_hovered="#282B33",
+    secondary_color_foreground_pressed="#282B33",
+    secondary_color_foreground_disabled="#282B333F",
+    secondary_alternative_color="#67718D",
+    secondary_alternative_color_hovered="#8B93AB",
+    secondary_alternative_color_pressed="#9CA4BC",
+    secondary_alternative_color_disabled="#575F763F",
+    status_color_success="#2BB5A0",
+    status_color_success_hovered="#3CBFAB",
+    status_color_success_pressed="#4ECDB9",
+    status_color_success_disabled="#28363C",
+    status_color_info="#1BA8D5",
+    status_color_info_hovered="#1EB5E5",
+    status_color_info_pressed="#29C0F0",
+    status_color_info_disabled="#283345",
+    status_color_warning="#FBC064",
+    status_color_warning_hovered="#FFCF6C",
+    status_color_warning_pressed="#FFD880",
+    status_color_warning_disabled="#393737",
+    status_color_error="#E96B72",
+    status_color_error_hovered="#F47C83",
+    status_color_error_pressed="#FF9197",
+    status_color_error_disabled="#3F333B",
+    status_color_foreground="#FFFFFF",
+    status_color_foreground_hovered="#FFFFFF",
+    status_color_foreground_pressed="#FFFFFF",
+    status_color_foreground_disabled="#FFFFFF26",
+    shadow_color1="#00000066",
+    shadow_color2="#000000BB",
+    shadow_color3="#000000FF",
+    border_color="#40485A",
+    border_color_hovered="#4A5670",
+    border_color_pressed="#5B6E98",
+    border_color_disabled="#2F343F",
+    semi_transparent_color1="#B7C9FF18",
+    semi_transparent_color2="#B7C9FF23",
+    semi_transparent_color3="#B7C9FF28",
+    semi_transparent_color4="#B7C9FF2D",
+)
+
+
 # ─── Radix Themes (Indigo accent / Slate gray) ──────────────────────
 #
 # Colors derived from Radix UI color scales:
@@ -372,6 +447,184 @@ RADIX_INDIGO_DARK = Theme(
 )
 
 
+# ─── shadcn/ui (Neutral / Tailwind neutral scale) ───────────────────
+#
+# Colors derived from shadcn/ui default theme (Tailwind neutral palette).
+# shadcn uses OKLCH internally; hex approximations below.
+
+SHADCN_LIGHT = Theme(
+    meta=ThemeMeta(name="shadcn Light", author="shadcn/ui"),
+    # Backgrounds: neutral-50 → neutral-300
+    background_color_main1="#FFFFFF",
+    background_color_main2="#FAFAFA",  # neutral-50
+    background_color_main3="#F5F5F5",  # neutral-100
+    background_color_main4="#E5E5E5",  # neutral-200
+    background_color_workspace="#D4D4D4",  # neutral-300
+    background_color_tab_bar="#D4D4D4",  # neutral-300
+    # Neutrals: neutral-200/300/400/100
+    neutral_color="#E5E5E5",  # neutral-200
+    neutral_color_hovered="#D4D4D4",  # neutral-300
+    neutral_color_pressed="#A3A3A3",  # neutral-400
+    neutral_color_disabled="#F5F5F5",  # neutral-100
+    # Focus: neutral-400 @ ~40% alpha
+    focus_color="#66A3A3A3",
+    # Primary: neutral-900 (shadcn primary is near-black in light mode)
+    primary_color="#171717",  # neutral-900
+    primary_color_hovered="#262626",  # neutral-800
+    primary_color_pressed="#404040",  # neutral-700
+    primary_color_disabled="#A3A3A3",  # neutral-400
+    primary_color_foreground="#FAFAFA",  # neutral-50
+    primary_color_foreground_hovered="#FAFAFA",
+    primary_color_foreground_pressed="#FAFAFA",
+    primary_color_foreground_disabled="#D4D4D4",  # neutral-300
+    # Primary alternative: slightly lighter neutrals
+    primary_alternative_color="#0A0A0A",  # neutral-950
+    primary_alternative_color_hovered="#171717",  # neutral-900
+    primary_alternative_color_pressed="#262626",  # neutral-800
+    primary_alternative_color_disabled="#D4D4D4",  # neutral-300
+    # Secondary: text/label color (dark on light bg, per Qlementine convention)
+    secondary_color="#171717",  # neutral-900 — label/icon color
+    secondary_color_hovered="#0A0A0A",  # neutral-950
+    secondary_color_pressed="#262626",  # neutral-800
+    secondary_color_disabled="#A3A3A3",  # neutral-400
+    secondary_color_foreground="#FFFFFF",  # bg behind secondary text
+    secondary_color_foreground_hovered="#FFFFFF",
+    secondary_color_foreground_pressed="#FFFFFF",
+    secondary_color_foreground_disabled="#E5E5E5",  # neutral-200
+    # Secondary alternative: muted text
+    secondary_alternative_color="#737373",  # neutral-500
+    secondary_alternative_color_hovered="#525252",  # neutral-600
+    secondary_alternative_color_pressed="#626262",
+    secondary_alternative_color_disabled="#D4D4D4",  # neutral-300
+    # Status: Tailwind red/green/amber/sky
+    status_color_success="#22C55E",  # green-500
+    status_color_success_hovered="#16A34A",  # green-600
+    status_color_success_pressed="#15803D",  # green-700
+    status_color_success_disabled="#BBF7D0",  # green-200
+    status_color_info="#0EA5E9",  # sky-500
+    status_color_info_hovered="#0284C7",  # sky-600
+    status_color_info_pressed="#0369A1",  # sky-700
+    status_color_info_disabled="#BAE6FD",  # sky-200
+    status_color_warning="#F59E0B",  # amber-500
+    status_color_warning_hovered="#D97706",  # amber-600
+    status_color_warning_pressed="#B45309",  # amber-700
+    status_color_warning_disabled="#FDE68A",  # amber-200
+    status_color_error="#EF4444",  # red-500
+    status_color_error_hovered="#DC2626",  # red-600
+    status_color_error_pressed="#B91C1C",  # red-700
+    status_color_error_disabled="#FECACA",  # red-200
+    status_color_foreground="#FFFFFF",
+    status_color_foreground_hovered="#FFFFFF",
+    status_color_foreground_pressed="#FFFFFF",
+    status_color_foreground_disabled="#99FFFFFF",
+    # Shadows
+    shadow_color1="#20000000",
+    shadow_color2="#40000000",
+    shadow_color3="#60000000",
+    # Borders: neutral-200/300/400/100
+    border_color="#E5E5E5",  # neutral-200
+    border_color_hovered="#D4D4D4",  # neutral-300
+    border_color_pressed="#A3A3A3",  # neutral-400
+    border_color_disabled="#F5F5F5",  # neutral-100
+    # Semi-transparent overlays
+    semi_transparent_color1="#00000000",
+    semi_transparent_color2="#19000000",
+    semi_transparent_color3="#21000000",
+    semi_transparent_color4="#28000000",
+    # Radii: shadcn default --radius = 0.625rem ≈ 10px
+    border_radius=10.0,
+    check_box_border_radius=4.0,
+    menu_item_border_radius=6.0,
+    menu_bar_item_border_radius=4.0,
+)
+
+SHADCN_DARK = Theme(
+    meta=ThemeMeta(name="shadcn Dark", author="shadcn/ui"),
+    # Backgrounds: neutral-950 → neutral-700
+    background_color_main1="#0A0A0A",  # neutral-950
+    background_color_main2="#171717",  # neutral-900
+    background_color_main3="#262626",  # neutral-800
+    background_color_main4="#404040",  # neutral-700
+    background_color_workspace="#262626",  # neutral-800
+    background_color_tab_bar="#262626",  # neutral-800
+    # Neutrals: neutral-800/700/600/900
+    neutral_color="#262626",  # neutral-800
+    neutral_color_hovered="#404040",  # neutral-700
+    neutral_color_pressed="#525252",  # neutral-600
+    neutral_color_disabled="#171717",  # neutral-900
+    # Focus: neutral-500 @ ~40% alpha
+    focus_color="#66737373",
+    # Primary: neutral-200 (shadcn primary is near-white in dark mode)
+    primary_color="#E5E5E5",  # neutral-200
+    primary_color_hovered="#D4D4D4",  # neutral-300
+    primary_color_pressed="#A3A3A3",  # neutral-400
+    primary_color_disabled="#525252",  # neutral-600
+    primary_color_foreground="#171717",  # neutral-900
+    primary_color_foreground_hovered="#171717",
+    primary_color_foreground_pressed="#171717",
+    primary_color_foreground_disabled="#404040",  # neutral-700
+    # Primary alternative: brighter neutrals
+    primary_alternative_color="#FAFAFA",  # neutral-50
+    primary_alternative_color_hovered="#E5E5E5",  # neutral-200
+    primary_alternative_color_pressed="#D4D4D4",  # neutral-300
+    primary_alternative_color_disabled="#525252",  # neutral-600
+    # Secondary: text/label color (light on dark bg, per Qlementine convention)
+    secondary_color="#FAFAFA",  # neutral-50 — label/icon color
+    secondary_color_hovered="#D4D4D4",  # neutral-300
+    secondary_color_pressed="#E5E5E5",  # neutral-200
+    secondary_color_disabled="#FAFAFA33",  # neutral-50 @ 20%
+    secondary_color_foreground="#171717",  # neutral-900 — bg behind text
+    secondary_color_foreground_hovered="#171717",
+    secondary_color_foreground_pressed="#171717",
+    secondary_color_foreground_disabled="#17171740",
+    # Secondary alternative: muted text
+    secondary_alternative_color="#A3A3A3",  # neutral-400
+    secondary_alternative_color_hovered="#D4D4D4",  # neutral-300
+    secondary_alternative_color_pressed="#E5E5E5",  # neutral-200
+    secondary_alternative_color_disabled="#52525240",  # neutral-600 @ 25%
+    # Status: Tailwind lighter variants for dark mode
+    status_color_success="#4ADE80",  # green-400
+    status_color_success_hovered="#22C55E",  # green-500
+    status_color_success_pressed="#16A34A",  # green-600
+    status_color_success_disabled="#14532D",  # green-900
+    status_color_info="#38BDF8",  # sky-400
+    status_color_info_hovered="#0EA5E9",  # sky-500
+    status_color_info_pressed="#0284C7",  # sky-600
+    status_color_info_disabled="#0C4A6E",  # sky-900
+    status_color_warning="#FBBF24",  # amber-400
+    status_color_warning_hovered="#F59E0B",  # amber-500
+    status_color_warning_pressed="#D97706",  # amber-600
+    status_color_warning_disabled="#451A03",  # amber-900
+    status_color_error="#F87171",  # red-400
+    status_color_error_hovered="#EF4444",  # red-500
+    status_color_error_pressed="#DC2626",  # red-600
+    status_color_error_disabled="#450A0A",  # red-900
+    status_color_foreground="#FFFFFF",
+    status_color_foreground_hovered="#FFFFFF",
+    status_color_foreground_pressed="#FFFFFF",
+    status_color_foreground_disabled="#99FFFFFF",
+    # Shadows: stronger in dark mode
+    shadow_color1="#30000000",
+    shadow_color2="#50000000",
+    shadow_color3="#70000000",
+    # Borders: ~10% white opacity, mapped to neutral steps
+    border_color="#2E2E2E",  # ~rgba(255,255,255,0.10) on #0A0A0A
+    border_color_hovered="#404040",  # neutral-700
+    border_color_pressed="#525252",  # neutral-600
+    border_color_disabled="#1A1A1A",
+    # Semi-transparent overlays (white-based for dark themes)
+    semi_transparent_color1="#00FFFFFF",
+    semi_transparent_color2="#19FFFFFF",
+    semi_transparent_color3="#21FFFFFF",
+    semi_transparent_color4="#28FFFFFF",
+    # Radii: same as light
+    border_radius=10.0,
+    check_box_border_radius=4.0,
+    menu_item_border_radius=6.0,
+    menu_bar_item_border_radius=4.0,
+)
+
+
 def _qt_core() -> Any:
     for framework in {"PyQt6", "PySide6"}:
         if framework in sys.modules:
@@ -396,7 +649,7 @@ if __name__ == "__main__":
     style = QlementineStyle(app)
     app.setStyle(style)
 
-    theme = RADIX_INDIGO_DARK
+    theme = QLEMENTINE_DARK
     style.setTheme(theme.toQlementine())
 
     sample_widget = QtWidgets.QWidget()
