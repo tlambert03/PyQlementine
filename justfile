@@ -6,9 +6,14 @@ export QT_VERSION := qt_version
 @_default:
     just --list
 
-# install dependencies and (re)-build the package
+# install dependencies and (re)-build PyQt6 package
 install: _clone _install-qt
     uv sync --reinstall-package pyqt6-qlementine
+
+# install PySide6 package (requires shiboken6-generator)
+install-pyside6: _clone _install-qt
+    uv pip install --python .venv/bin/python shiboken6-generator==6.8.1
+    uv pip install --python .venv/bin/python packages/PySide6-Qlementine
 
 # Clean build artifacts
 clean:

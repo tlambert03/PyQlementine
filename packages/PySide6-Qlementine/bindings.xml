@@ -1,0 +1,433 @@
+<?xml version="1.0"?>
+<typesystem package="PySide6Qlementine">
+
+    <load-typesystem name="typesystem_core.xml" generate="no"/>
+    <load-typesystem name="typesystem_gui.xml" generate="no"/>
+    <load-typesystem name="typesystem_widgets.xml" generate="no"/>
+
+    <!-- Reject utility functions/classes not in our public API -->
+    <rejection class="" function-name="colorizeImage"/>
+    <rejection class="" function-name="colorizePixmap"/>
+    <rejection class="" function-name="tintPixmap"/>
+    <rejection class="" function-name="getColorizedPixmap"/>
+    <rejection class="" function-name="getColorizedPixmapKey"/>
+    <rejection class="" function-name="getTintedPixmap"/>
+    <rejection class="" function-name="getTintedPixmapKey"/>
+    <rejection class="" function-name="makePixmapFromSvg"/>
+    <rejection class="" function-name="makeRoundedPixmap"/>
+    <rejection class="" function-name="makeFitPixmap"/>
+    <rejection class="" function-name="getImageAspectRatio"/>
+    <rejection class="" function-name="getExtendedImage"/>
+    <rejection class="" function-name="getBlurredPixmap"/>
+    <rejection class="" function-name="getDropShadowPixmap"/>
+    <rejection class="" function-name="blurRadiusNecessarySpace"/>
+    <rejection class="" function-name="makeIconFromSvg"/>
+    <rejection class="" function-name="getContrastRatio"/>
+    <rejection class="" function-name="colorWithAlphaF"/>
+    <rejection class="" function-name="colorWithAlpha"/>
+    <rejection class="" function-name="getColorSourceOver"/>
+    <rejection class="" function-name="tryGetColorFromVariantList"/>
+    <rejection class="" function-name="tryGetColorFromRGBAString"/>
+    <rejection class="" function-name="tryGetColorFromHexaString"/>
+    <rejection class="" function-name="tryGetColorFromVariant"/>
+    <rejection class="" function-name="toHexRGB"/>
+    <rejection class="" function-name="toHexRGBA"/>
+    <rejection class="" function-name="getStatusBadgeSizes"/>
+    <rejection class="" function-name="drawStatusBadge"/>
+
+    <!-- Reject QStyle override methods on QlementineStyle (reference types not in typesystem) -->
+    <rejection class="oclero::qlementine::QlementineStyle" function-name="polish"/>
+    <rejection class="oclero::qlementine::QlementineStyle" function-name="unpolish"/>
+    <rejection class="oclero::qlementine::QlementineStyle" function-name="drawPrimitive"/>
+    <rejection class="oclero::qlementine::QlementineStyle" function-name="drawControl"/>
+    <rejection class="oclero::qlementine::QlementineStyle" function-name="drawComplexControl"/>
+    <rejection class="oclero::qlementine::QlementineStyle" function-name="pixelMetric"/>
+    <rejection class="oclero::qlementine::QlementineStyle" function-name="sizeFromContents"/>
+    <rejection class="oclero::qlementine::QlementineStyle" function-name="subElementRect"/>
+    <rejection class="oclero::qlementine::QlementineStyle" function-name="subControlRect"/>
+    <rejection class="oclero::qlementine::QlementineStyle" function-name="hitTestComplexControl"/>
+    <rejection class="oclero::qlementine::QlementineStyle" function-name="styleHint"/>
+    <rejection class="oclero::qlementine::QlementineStyle" function-name="standardIcon"/>
+    <rejection class="oclero::qlementine::QlementineStyle" function-name="standardPixmap"/>
+    <rejection class="oclero::qlementine::QlementineStyle" function-name="standardPalette"/>
+    <rejection class="oclero::qlementine::QlementineStyle" function-name="generatedIconPixmap"/>
+    <rejection class="oclero::qlementine::QlementineStyle" function-name="layoutSpacing"/>
+    <rejection class="oclero::qlementine::QlementineStyle" function-name="itemTextRect"/>
+    <rejection class="oclero::qlementine::QlementineStyle" function-name="itemPixmapRect"/>
+    <rejection class="oclero::qlementine::QlementineStyle" function-name="drawItemText"/>
+    <rejection class="oclero::qlementine::QlementineStyle" function-name="drawItemPixmap"/>
+    <rejection class="oclero::qlementine::QlementineStyle" function-name="widgetStatus"/>
+    <rejection class="oclero::qlementine::QlementineStyle" function-name="setIconPathGetter"/>
+    <rejection class="oclero::qlementine::QlementineStyle" function-name="getColorizedPixmap"/>
+
+    <!-- Reject std::function methods on Menu -->
+    <rejection class="oclero::qlementine::Menu" function-name="setEnabledPredicate"/>
+    <rejection class="oclero::qlementine::Menu" function-name="setVisiblePredicate"/>
+    <!-- Reject std::function on Popover -->
+    <rejection class="oclero::qlementine::Popover" function-name="setManualPositioningCallback"/>
+    <!-- Reject internal method -->
+    <rejection class="oclero::qlementine::AbstractItemListWidget" function-name="initStyleOptionFocus"/>
+    <rejection class="oclero::qlementine::CommandLinkButton" function-name="initStyleOption"/>
+
+    <!-- Reject classes not in our public API -->
+    <rejection class="oclero::qlementine::WidgetAnimationManager"/>
+    <rejection class="oclero::qlementine::WidgetAnimator"/>
+    <rejection class="oclero::qlementine::ThemeEditor"/>
+    <rejection class="oclero::qlementine::QStyleOptionFocusRoundedRect"/>
+    <rejection class="oclero::qlementine::QStyleOptionRoundedButton"/>
+    <rejection class="oclero::qlementine::QStyleOptionSliderF"/>
+    <rejection class="oclero::qlementine::QStyleOptionCommandLinkButton"/>
+    <rejection class="oclero::qlementine::ComboBoxDelegate"/>
+    <rejection class="oclero::qlementine::Action"/>
+    <rejection class="oclero::qlementine::FramelessWindow"/>
+    <rejection class="oclero::qlementine::IconTheme"/>
+
+    <namespace-type name="oclero" visible="false">
+        <namespace-type name="qlementine" visible="false">
+
+            <!-- ====== ENUMS ====== -->
+            <enum-type name="ColorRole"/>
+            <enum-type name="MouseState"/>
+            <enum-type name="CheckState"/>
+            <enum-type name="FocusState"/>
+            <enum-type name="ActiveState"/>
+            <enum-type name="SelectionState"/>
+            <enum-type name="AlternateState"/>
+            <enum-type name="DefaultState"/>
+            <enum-type name="Status"/>
+            <enum-type name="TextRole"/>
+            <enum-type name="ColorMode"/>
+            <enum-type name="AutoIconColor"/>
+            <enum-type name="StatusBadge"/>
+            <enum-type name="StatusBadgeSize"/>
+            <enum-type name="ColorizeMode"/>
+
+            <!-- ====== VALUE TYPES ====== -->
+
+            <value-type name="RadiusesF"/>
+
+            <value-type name="ThemeMeta"/>
+
+            <value-type name="Theme">
+                <!-- fromJsonPath returns std::optional<Theme>, replace with inject-code -->
+                <modify-function signature="fromJsonPath(const QString&amp;)">
+                    <modify-argument index="return">
+                        <replace-type modified-type="oclero::qlementine::Theme"/>
+                    </modify-argument>
+                    <inject-code class="target" position="beginning" language="target">
+                        auto result = oclero::qlementine::Theme::fromJsonPath(%1);
+                        if (result.has_value()) {
+                            %PYARG_0 = %CONVERTTOPYTHON[oclero::qlementine::Theme](result.value());
+                        } else {
+                            PyErr_SetString(PyExc_ValueError, "Failed to load theme from JSON path");
+                            return {};
+                        }
+                    </inject-code>
+                </modify-function>
+
+                <modify-function signature="fromJsonDoc(const QJsonDocument&amp;)">
+                    <modify-argument index="return">
+                        <replace-type modified-type="oclero::qlementine::Theme"/>
+                    </modify-argument>
+                    <inject-code class="target" position="beginning" language="target">
+                        auto result = oclero::qlementine::Theme::fromJsonDoc(%1);
+                        if (result.has_value()) {
+                            %PYARG_0 = %CONVERTTOPYTHON[oclero::qlementine::Theme](result.value());
+                        } else {
+                            PyErr_SetString(PyExc_ValueError, "Failed to load theme from JSON document");
+                            return {};
+                        }
+                    </inject-code>
+                </modify-function>
+            </value-type>
+
+            <!-- ====== OBJECT TYPES ====== -->
+
+            <object-type name="QlementineStyle">
+                <modify-function signature="QlementineStyle(QObject*)">
+                    <modify-argument index="1">
+                        <parent index="this" action="add"/>
+                    </modify-argument>
+                </modify-function>
+                <!-- Remove per-widget overloads not exposed in SIP -->
+                <modify-function signature="setAutoIconColor(QWidget*,oclero::qlementine::AutoIconColor)" remove="all"/>
+                <modify-function signature="autoIconColor(const QWidget*)const" remove="all"/>
+            </object-type>
+
+            <!-- Free function -->
+            <function signature="appStyle()"/>
+
+            <object-type name="ThemeManager">
+                <modify-function signature="ThemeManager(QObject*)">
+                    <modify-argument index="1">
+                        <parent index="this" action="add"/>
+                    </modify-argument>
+                </modify-function>
+                <modify-function signature="ThemeManager(oclero::qlementine::QlementineStyle*,QObject*)">
+                    <modify-argument index="2">
+                        <parent index="this" action="add"/>
+                    </modify-argument>
+                </modify-function>
+            </object-type>
+
+            <object-type name="AbstractItemListWidget" force-abstract="yes">
+                <modify-function signature="AbstractItemListWidget(QWidget*)">
+                    <modify-argument index="1">
+                        <parent index="this" action="add"/>
+                    </modify-argument>
+                </modify-function>
+                <modify-function signature="initStyleOptionFocus*" remove="all"/>
+            </object-type>
+
+            <object-type name="NavigationBar">
+                <modify-function signature="NavigationBar(QWidget*)">
+                    <modify-argument index="1">
+                        <parent index="this" action="add"/>
+                    </modify-argument>
+                </modify-function>
+            </object-type>
+
+            <object-type name="SegmentedControl">
+                <modify-function signature="SegmentedControl(QWidget*)">
+                    <modify-argument index="1">
+                        <parent index="this" action="add"/>
+                    </modify-argument>
+                </modify-function>
+            </object-type>
+
+            <object-type name="Switch">
+                <modify-function signature="Switch(QWidget*)">
+                    <modify-argument index="1">
+                        <parent index="this" action="add"/>
+                    </modify-argument>
+                </modify-function>
+            </object-type>
+
+            <object-type name="Label">
+                <modify-function signature="Label(QWidget*)">
+                    <modify-argument index="1">
+                        <parent index="this" action="add"/>
+                    </modify-argument>
+                </modify-function>
+                <modify-function signature="Label(const QString&amp;,oclero::qlementine::TextRole,QWidget*)">
+                    <modify-argument index="3">
+                        <parent index="this" action="add"/>
+                    </modify-argument>
+                </modify-function>
+            </object-type>
+
+            <object-type name="LineEdit">
+                <modify-function signature="LineEdit(QWidget*)">
+                    <modify-argument index="1">
+                        <parent index="this" action="add"/>
+                    </modify-argument>
+                </modify-function>
+            </object-type>
+
+            <object-type name="PlainTextEdit">
+                <modify-function signature="PlainTextEdit(QWidget*)">
+                    <modify-argument index="1">
+                        <parent index="this" action="add"/>
+                    </modify-argument>
+                </modify-function>
+            </object-type>
+
+            <object-type name="LoadingSpinner">
+                <modify-function signature="LoadingSpinner(QWidget*)">
+                    <modify-argument index="1">
+                        <parent index="this" action="add"/>
+                    </modify-argument>
+                </modify-function>
+            </object-type>
+
+            <object-type name="IconWidget">
+                <modify-function signature="IconWidget(QWidget*)">
+                    <modify-argument index="1">
+                        <parent index="this" action="add"/>
+                    </modify-argument>
+                </modify-function>
+                <modify-function signature="IconWidget(const QIcon&amp;,QWidget*)">
+                    <modify-argument index="2">
+                        <parent index="this" action="add"/>
+                    </modify-argument>
+                </modify-function>
+                <modify-function signature="IconWidget(const QIcon&amp;,const QSize&amp;,QWidget*)">
+                    <modify-argument index="3">
+                        <parent index="this" action="add"/>
+                    </modify-argument>
+                </modify-function>
+            </object-type>
+
+            <object-type name="StatusBadgeWidget">
+                <modify-function signature="StatusBadgeWidget(QWidget*)">
+                    <modify-argument index="1">
+                        <parent index="this" action="add"/>
+                    </modify-argument>
+                </modify-function>
+                <modify-function signature="StatusBadgeWidget(oclero::qlementine::StatusBadge,QWidget*)">
+                    <modify-argument index="2">
+                        <parent index="this" action="add"/>
+                    </modify-argument>
+                </modify-function>
+                <modify-function signature="StatusBadgeWidget(oclero::qlementine::StatusBadge,oclero::qlementine::StatusBadgeSize,QWidget*)">
+                    <modify-argument index="3">
+                        <parent index="this" action="add"/>
+                    </modify-argument>
+                </modify-function>
+            </object-type>
+
+            <object-type name="Expander">
+                <modify-function signature="Expander(QWidget*)">
+                    <modify-argument index="1">
+                        <parent index="this" action="add"/>
+                    </modify-argument>
+                </modify-function>
+                <modify-function signature="setContent(QWidget*)">
+                    <modify-argument index="1">
+                        <define-ownership class="target" owner="c++"/>
+                    </modify-argument>
+                </modify-function>
+            </object-type>
+
+            <object-type name="ActionButton">
+                <modify-function signature="ActionButton(QWidget*)">
+                    <modify-argument index="1">
+                        <parent index="this" action="add"/>
+                    </modify-argument>
+                </modify-function>
+            </object-type>
+
+            <object-type name="CommandLinkButton">
+                <modify-function signature="CommandLinkButton(QWidget*)">
+                    <modify-argument index="1">
+                        <parent index="this" action="add"/>
+                    </modify-argument>
+                </modify-function>
+                <modify-function signature="CommandLinkButton(const QString&amp;,QWidget*)">
+                    <modify-argument index="2">
+                        <parent index="this" action="add"/>
+                    </modify-argument>
+                </modify-function>
+                <modify-function signature="CommandLinkButton(const QString&amp;,const QString&amp;,QWidget*)">
+                    <modify-argument index="3">
+                        <parent index="this" action="add"/>
+                    </modify-argument>
+                </modify-function>
+                <modify-function signature="initStyleOption*" remove="all"/>
+            </object-type>
+
+            <object-type name="AboutDialog">
+                <modify-function signature="AboutDialog(QWidget*)">
+                    <modify-argument index="1">
+                        <parent index="this" action="add"/>
+                    </modify-argument>
+                </modify-function>
+            </object-type>
+
+            <object-type name="NotificationBadge">
+                <modify-function signature="NotificationBadge(QWidget*)">
+                    <modify-argument index="1">
+                        <parent index="this" action="add"/>
+                    </modify-argument>
+                </modify-function>
+            </object-type>
+
+            <object-type name="ColorButton">
+                <modify-function signature="ColorButton(QWidget*)">
+                    <modify-argument index="1">
+                        <parent index="this" action="add"/>
+                    </modify-argument>
+                </modify-function>
+                <modify-function signature="ColorButton(const QColor&amp;,QWidget*)">
+                    <modify-argument index="2">
+                        <parent index="this" action="add"/>
+                    </modify-argument>
+                </modify-function>
+                <modify-function signature="ColorButton(const QColor&amp;,oclero::qlementine::ColorMode,QWidget*)">
+                    <modify-argument index="3">
+                        <parent index="this" action="add"/>
+                    </modify-argument>
+                </modify-function>
+            </object-type>
+
+            <object-type name="ColorEditor">
+                <modify-function signature="ColorEditor(QWidget*)">
+                    <modify-argument index="1">
+                        <parent index="this" action="add"/>
+                    </modify-argument>
+                </modify-function>
+                <modify-function signature="ColorEditor(const QColor&amp;,QWidget*)">
+                    <modify-argument index="2">
+                        <parent index="this" action="add"/>
+                    </modify-argument>
+                </modify-function>
+            </object-type>
+
+            <object-type name="Popover">
+                <enum-type name="Position"/>
+                <enum-type name="Alignment"/>
+                <modify-function signature="Popover(QWidget*)">
+                    <modify-argument index="1">
+                        <parent index="this" action="add"/>
+                    </modify-argument>
+                </modify-function>
+                <modify-function signature="setContentWidget(QWidget*)">
+                    <modify-argument index="1">
+                        <define-ownership class="target" owner="c++"/>
+                    </modify-argument>
+                </modify-function>
+                <!-- Reject std::function callback -->
+                <modify-function signature="setManualPositioningCallback*" remove="all"/>
+            </object-type>
+
+            <object-type name="PopoverButton">
+                <modify-function signature="PopoverButton(QWidget*)">
+                    <modify-argument index="1">
+                        <parent index="this" action="add"/>
+                    </modify-argument>
+                </modify-function>
+                <modify-function signature="PopoverButton(const QString&amp;,QWidget*)">
+                    <modify-argument index="2">
+                        <parent index="this" action="add"/>
+                    </modify-argument>
+                </modify-function>
+                <modify-function signature="PopoverButton(const QString&amp;,const QIcon&amp;,QWidget*)">
+                    <modify-argument index="3">
+                        <parent index="this" action="add"/>
+                    </modify-argument>
+                </modify-function>
+                <modify-function signature="setPopoverContentWidget(QWidget*)">
+                    <modify-argument index="1">
+                        <define-ownership class="target" owner="c++"/>
+                    </modify-argument>
+                </modify-function>
+            </object-type>
+
+            <object-type name="Menu">
+                <modify-function signature="Menu(QWidget*)">
+                    <modify-argument index="1">
+                        <parent index="this" action="add"/>
+                    </modify-argument>
+                </modify-function>
+                <modify-function signature="Menu(const QString&amp;,QWidget*)">
+                    <modify-argument index="2">
+                        <parent index="this" action="add"/>
+                    </modify-argument>
+                </modify-function>
+                <!-- Reject std::function methods -->
+                <modify-function signature="setEnabledPredicate*" remove="all"/>
+                <modify-function signature="setVisiblePredicate*" remove="all"/>
+            </object-type>
+
+            <object-type name="RoundedFocusFrame">
+                <modify-function signature="RoundedFocusFrame(QWidget*)">
+                    <modify-argument index="1">
+                        <parent index="this" action="add"/>
+                    </modify-argument>
+                </modify-function>
+            </object-type>
+
+        </namespace-type>
+    </namespace-type>
+
+</typesystem>

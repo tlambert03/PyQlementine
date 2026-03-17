@@ -1,0 +1,41 @@
+[build-system]
+requires = [
+    "scikit-build-core>=0.10",
+    "shiboken6==6.8.1",
+    "shiboken6-generator==6.8.1",
+    "PySide6==6.8.1",
+]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "PySide6-Qlementine"
+version = "1.4.2"
+requires-python = ">=3.10"
+description = "PySide6 bindings for Qlementine, a modern QStyle for desktop Qt6 applications"
+license = { text = "MIT" }
+readme = "../../README.md"
+dependencies = ["PySide6>=6.8.0"]
+classifiers = [
+	"Development Status :: 3 - Alpha",
+	"Intended Audience :: Developers",
+	"License :: OSI Approved :: MIT License",
+	"Operating System :: MacOS",
+	"Operating System :: Microsoft :: Windows",
+	"Operating System :: POSIX :: Linux",
+	"Programming Language :: Python :: 3",
+	"Topic :: Software Development :: Libraries :: Python Modules",
+	"Topic :: Software Development :: Widget Sets",
+	"Environment :: X11 Applications :: Qt",
+	"Typing :: Typed",
+]
+
+[project.urls]
+Upstream = "https://github.com/oclero/qlementine"
+Homepage = "https://github.com/pyapp-kit/PyQt6-Qlementine"
+
+[tool.scikit-build]
+cmake.build-type = "Release"
+wheel.packages = ["PySide6Qlementine"]
+
+[tool.scikit-build.cmake.define]
+CMAKE_TOOLCHAIN_FILE = ""
