@@ -87,6 +87,12 @@ enum class ColorMode
     RGBA,
 };
 
+enum class ColorizeMode
+{
+    Colorize,
+    Tint,
+};
+
 enum class AutoIconColor
 {
     None,
