@@ -11,13 +11,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  pyqt6:
+  pyqt6-qlementine:
     uses: ./.github/workflows/build-package.yml
     with:
       package: PyQt6-Qlementine
       qt_version: "6.8.1"
 
-  pyside6:
+  pyside6-qlementine:
     uses: ./.github/workflows/build-package.yml
     with:
       package: PySide6-Qlementine
