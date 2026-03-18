@@ -370,13 +370,11 @@ class TestExpander:
     def test_default_not_expanded(self, qapp):
         assert Qlementine.Expander().expanded() is False
 
-    @pytest.mark.skip(reason="setExpanded(True) segfaults — binding bug")
     def test_set_expanded(self, qapp):
         e = Qlementine.Expander()
         e.setExpanded(True)
         assert e.expanded() is True
 
-    @pytest.mark.skip(reason="toggleExpanded segfaults — binding bug")
     def test_toggle_expanded(self, qapp):
         e = Qlementine.Expander()
         e.toggleExpanded()

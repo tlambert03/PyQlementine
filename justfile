@@ -41,3 +41,21 @@ install-qt qt_version="6.8.1":
 
 _clone:
     git submodule update --init --recursive
+    @just _patch
+
+# apply local patches to the qlementine submodule
+_patch:
+    #!/usr/bin/env sh
+    root="$(pwd)"
+    for p in patches/*.patch; do
+        [ -f "$p" ] || continue
+        if git -C qlementine apply --check "$root/$p" 2>/dev/null; then
+            git -C qlementine apply "$root/$p"
+            echo "Applied $p"
+        elif git -C qlementine apply --check -R "$root/$p" 2>/dev/null; then
+            echo "Skipping $p (already applied)"
+        else
+            echo "ERROR: $p conflicts with current submodule state — patch needs updating" >&2
+            exit 1
+        fi
+    done
