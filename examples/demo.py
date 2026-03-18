@@ -5,7 +5,7 @@ from __future__ import annotations
 import sys
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QAction
+from PyQt6.QtGui import QAction, QKeySequence, QShortcut
 from PyQt6.QtWidgets import (
     QApplication,
     QCheckBox,
@@ -43,299 +43,309 @@ from PyQt6Qlementine import (
     TextRole,
 )
 
-
-def _make_section(title: str, parent: QWidget | None = None) -> QGroupBox:
-    """Create a titled group box with a vertical layout."""
-    group = QGroupBox(title, parent)
-    group.setLayout(QVBoxLayout())
-    return group
+ZOOM_STEP = 0.1
 
 
-def _setup_labels(parent: QVBoxLayout) -> None:
-    roles = [
-        ("Headline 1", TextRole.H1),
-        ("Headline 2", TextRole.H2),
-        ("Headline 3", TextRole.H3),
-        ("Headline 4", TextRole.H4),
-        ("Headline 5", TextRole.H5),
-        ("Default body text", TextRole.Default),
-        ("Caption text", TextRole.Caption),
-    ]
-    section = _make_section("Labels")
-    for text, role in roles:
-        label = Label()
-        label.setText(text)
-        label.setRole(role)
-        section.layout().addWidget(label)
-    parent.addWidget(section)
+class Section(QGroupBox):
+    """Group box that ignores minimum width so columns can shrink freely."""
+
+    def __init__(self, title: str, parent: QWidget | None = None) -> None:
+        super().__init__(title, parent)
+        sp = self.sizePolicy()
+        self.setSizePolicy(sp)
+        self._layout = QVBoxLayout(self)
+
+    def vbox(self) -> QVBoxLayout:
+        return self._layout
 
 
-def _setup_buttons(parent: QVBoxLayout) -> None:
-    section = _make_section("Buttons")
-    layout = section.layout()
-
-    row = QHBoxLayout()
-    btn = QPushButton("Default Button")
-    btn.setDefault(True)
-    row.addWidget(btn)
-
-    btn_flat = QPushButton("Flat Button")
-    btn_flat.setFlat(True)
-    row.addWidget(btn_flat)
-
-    btn_menu = QPushButton("With Menu")
-    menu = QMenu(btn_menu)
-    for i in range(3):
-        menu.addAction(QAction(f"Action {i + 1}", menu))
-    btn_menu.setMenu(menu)
-    row.addWidget(btn_menu)
-    layout.addLayout(row)
-
-    row2 = QHBoxLayout()
-    action_btn = ActionButton()
-    action_btn.setText("Action Button")
-    row2.addWidget(action_btn)
-
-    cmd_btn = CommandLinkButton()
-    cmd_btn.setText("Command Link")
-    cmd_btn.setDescription("With a description line underneath")
-    row2.addWidget(cmd_btn)
-    layout.addLayout(row2)
-
-    parent.addWidget(section)
+class LabelsSection(Section):
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__("Labels", parent)
+        for text, role in [
+            ("Headline 1", TextRole.H1),
+            ("Headline 2", TextRole.H2),
+            ("Headline 3", TextRole.H3),
+            ("Headline 4", TextRole.H4),
+            ("Headline 5", TextRole.H5),
+            ("Default body text", TextRole.Default),
+            ("Caption text", TextRole.Caption),
+        ]:
+            lbl = Label(self)
+            lbl.setText(text)
+            lbl.setRole(role)
+            self.vbox().addWidget(lbl)
 
 
-def _setup_inputs(parent: QVBoxLayout) -> None:
-    section = _make_section("Input Widgets")
-    layout = section.layout()
+class ButtonsSection(Section):
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__("Buttons", parent)
 
-    line_edit = LineEdit()
-    line_edit.setPlaceholderText("Type something here...")
-    line_edit.setClearButtonEnabled(True)
-    layout.addWidget(line_edit)
+        btn = QPushButton("Default Button", self)
+        btn.setDefault(True)
+        btn_flat = QPushButton("Flat Button", self)
+        btn_flat.setFlat(True)
+        btn_menu = QPushButton("With Menu", self)
+        menu = QMenu(btn_menu)
+        for i in range(3):
+            menu.addAction(QAction(f"Action {i + 1}", menu))
+        btn_menu.setMenu(menu)
 
-    plain_text = PlainTextEdit()
-    plain_text.setPlaceholderText("Multi-line text editor")
-    plain_text.setFixedHeight(80)
-    layout.addWidget(plain_text)
+        row1 = QHBoxLayout()
+        row1.addWidget(btn)
+        row1.addWidget(btn_flat)
+        row1.addWidget(btn_menu)
+        self.vbox().addLayout(row1)
 
-    row = QHBoxLayout()
-    spin = QSpinBox()
-    spin.setRange(0, 100)
-    spin.setValue(42)
-    spin.setSuffix(" units")
-    row.addWidget(spin)
+        action_btn = ActionButton(self)
+        action_btn.setText("Action Button")
+        cmd_btn = CommandLinkButton(self)
+        cmd_btn.setText("Command Link")
+        cmd_btn.setDescription("With a description line underneath")
 
-    combo = QComboBox()
-    combo.setEditable(True)
-    for i in range(5):
-        combo.addItem(f"Option {i + 1}")
-    row.addWidget(combo)
-    layout.addLayout(row)
-
-    parent.addWidget(section)
-
-
-def _setup_toggles(parent: QVBoxLayout) -> None:
-    section = _make_section("Toggles & Checks")
-    layout = section.layout()
-
-    row = QHBoxLayout()
-    switch = Switch()
-    switch.setText("Switch toggle")
-    switch.setChecked(True)
-    row.addWidget(switch)
-
-    switch_tri = Switch()
-    switch_tri.setText("Tristate switch")
-    switch_tri.setTristate(True)
-    switch_tri.setCheckState(Qt.CheckState.PartiallyChecked)
-    row.addWidget(switch_tri)
-    layout.addLayout(row)
-
-    row2 = QHBoxLayout()
-    for i, label in enumerate(["Check A", "Check B", "Check C"]):
-        cb = QCheckBox(label)
-        cb.setChecked(i % 2 == 0)
-        row2.addWidget(cb)
-    layout.addLayout(row2)
-
-    row3 = QHBoxLayout()
-    for i, label in enumerate(["Radio 1", "Radio 2", "Radio 3"]):
-        rb = QRadioButton(label)
-        rb.setChecked(i == 0)
-        row3.addWidget(rb)
-    layout.addLayout(row3)
-
-    parent.addWidget(section)
+        row2 = QHBoxLayout()
+        row2.addWidget(action_btn)
+        row2.addWidget(cmd_btn)
+        self.vbox().addLayout(row2)
 
 
-def _setup_sliders(parent: QVBoxLayout) -> None:
-    section = _make_section("Sliders & Progress")
-    layout = section.layout()
+class InputsSection(Section):
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__("Input Widgets", parent)
 
-    progress = QProgressBar()
-    progress.setRange(0, 100)
-    progress.setValue(35)
-    layout.addWidget(progress)
+        line_edit = LineEdit(self)
+        line_edit.setPlaceholderText("Type something here...")
+        line_edit.setClearButtonEnabled(True)
+        self.vbox().addWidget(line_edit)
 
-    slider = QSlider(Qt.Orientation.Horizontal)
-    slider.setRange(0, 100)
-    slider.setValue(35)
-    slider.valueChanged.connect(progress.setValue)
-    layout.addWidget(slider)
+        plain_text = PlainTextEdit(self)
+        plain_text.setPlaceholderText("Multi-line text editor")
+        plain_text.setFixedHeight(80)
+        self.vbox().addWidget(plain_text)
 
-    row = QHBoxLayout()
-    dial = QDial()
-    dial.setRange(0, 100)
-    dial.setValue(50)
-    dial.setNotchesVisible(True)
-    dial.setFixedSize(64, 64)
-    row.addWidget(dial)
+        spin = QSpinBox(self)
+        spin.setRange(0, 100)
+        spin.setValue(42)
+        spin.setSuffix(" units")
+        combo = QComboBox(self)
+        combo.setEditable(True)
+        for i in range(5):
+            combo.addItem(f"Option {i + 1}")
 
-    spinner = LoadingSpinner()
-    spinner.setFixedSize(48, 48)
-    row.addWidget(spinner)
-    row.addStretch()
-    layout.addLayout(row)
-
-    parent.addWidget(section)
+        row = QHBoxLayout()
+        row.addWidget(spin)
+        row.addWidget(combo)
+        self.vbox().addLayout(row)
 
 
-def _setup_qlementine_widgets(parent: QVBoxLayout) -> None:
-    section = _make_section("Qlementine Widgets")
-    layout = section.layout()
+class TogglesAndChecks(Section):
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__("Toggles & Checks", parent)
 
-    expand_btn = QPushButton("Toggle Expander")
-    layout.addWidget(expand_btn)
-    expander = Expander()
-    inner = QWidget()
-    inner_layout = QVBoxLayout(inner)
-    inner_layout.setContentsMargins(0, 0, 0, 0)
-    inner_layout.addWidget(Label("Hidden content revealed!"))
-    inner_line = LineEdit()
-    inner_line.setPlaceholderText("An input inside the expander")
-    inner_layout.addWidget(inner_line)
-    expander.setContent(inner)
-    expand_btn.clicked.connect(expander.toggleExpanded)
-    layout.addWidget(expander)
+        sw = Switch(self)
+        sw.setText("Switch toggle")
+        sw.setChecked(True)
+        sw_tri = Switch(self)
+        sw_tri.setText("Tristate switch")
+        sw_tri.setTristate(True)
+        sw_tri.setCheckState(Qt.CheckState.PartiallyChecked)
 
-    row = QHBoxLayout()
-    color_btn = ColorButton()
-    row.addWidget(Label("Color:"))
-    row.addWidget(color_btn)
+        row = QHBoxLayout()
+        row.addWidget(sw)
+        row.addWidget(sw_tri)
+        self.vbox().addLayout(row)
 
-    color_editor = ColorEditor()
-    row.addWidget(color_editor)
-    row.addStretch()
-    layout.addLayout(row)
+        checks = QHBoxLayout()
+        for i, text in enumerate(["Check A", "Check B", "Check C"]):
+            cb = QCheckBox(text, self)
+            cb.setChecked(i % 2 == 0)
+            checks.addWidget(cb)
+        self.vbox().addLayout(checks)
 
-    row2 = QHBoxLayout()
-    badge = StatusBadgeWidget()
-    row2.addWidget(Label("Status badge:"))
-    row2.addWidget(badge)
+        radios = QHBoxLayout()
+        for i, text in enumerate(["Radio 1", "Radio 2", "Radio 3"]):
+            rb = QRadioButton(text, self)
+            rb.setChecked(i == 0)
+            radios.addWidget(rb)
+        self.vbox().addLayout(radios)
 
-    notif = NotificationBadge()
-    notif.setText("3")
-    row2.addWidget(Label("Notification:"))
-    row2.addWidget(notif)
-    row2.addStretch()
-    layout.addLayout(row2)
 
-    parent.addWidget(section)
+class SlidersAndProgress(Section):
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__("Sliders & Progress", parent)
+
+        progress = QProgressBar(self)
+        progress.setRange(0, 100)
+        progress.setValue(35)
+        self.vbox().addWidget(progress)
+
+        slider = QSlider(Qt.Orientation.Horizontal, self)
+        slider.setRange(0, 100)
+        slider.setValue(35)
+        slider.valueChanged.connect(progress.setValue)
+        self.vbox().addWidget(slider)
+
+        dial = QDial(self)
+        dial.setRange(0, 100)
+        dial.setValue(50)
+        dial.setNotchesVisible(True)
+        dial.setFixedSize(64, 64)
+        spinner = LoadingSpinner(self)
+        spinner.setFixedSize(48, 48)
+
+        row = QHBoxLayout()
+        row.addWidget(dial)
+        row.addWidget(spinner)
+        row.addStretch()
+        self.vbox().addLayout(row)
+
+
+class QlementineWidgets(Section):
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__("Qlementine Widgets", parent)
+
+        expand_btn = QPushButton("Toggle Expander", self)
+        self.vbox().addWidget(expand_btn)
+
+        expander = Expander(self)
+        inner = QWidget(self)
+        inner_lay = QVBoxLayout(inner)
+        inner_lay.setContentsMargins(0, 0, 0, 0)
+        inner_lay.addWidget(Label("Hidden content revealed!", parent=inner))
+        inner_line = LineEdit(inner)
+        inner_line.setPlaceholderText("An input inside the expander")
+        inner_lay.addWidget(inner_line)
+        expander.setContent(inner)
+        expand_btn.clicked.connect(expander.toggleExpanded)
+        self.vbox().addWidget(expander)
+
+        color_row = QHBoxLayout()
+        color_row.addWidget(Label("Color:", parent=self))
+        color_row.addWidget(ColorButton(self))
+        color_row.addWidget(ColorEditor(self))
+        color_row.addStretch()
+        self.vbox().addLayout(color_row)
+
+        badge_row = QHBoxLayout()
+        badge_row.addWidget(Label("Status badge:", parent=self))
+        badge_row.addWidget(StatusBadgeWidget(self))
+        badge_row.addWidget(Label("Notification:", parent=self))
+        notif = NotificationBadge(self)
+        notif.setText("3")
+        badge_row.addWidget(notif)
+        badge_row.addStretch()
+        self.vbox().addLayout(badge_row)
+
+
+class SettingsForm(QScrollArea):
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self.setWidgetResizable(True)
+
+        form = QWidget()
+        self.setWidget(form)
+        layout = QVBoxLayout(form)
+
+        title = Label(form)
+        title.setText("Settings")
+        title.setRole(TextRole.H2)
+        layout.addWidget(title)
+
+        general = Section("General", form)
+        name_edit = LineEdit(general)
+        name_edit.setPlaceholderText("Project name")
+        general.vbox().addWidget(name_edit)
+        desc_edit = PlainTextEdit(general)
+        desc_edit.setPlaceholderText("Description")
+        desc_edit.setFixedHeight(60)
+        general.vbox().addWidget(desc_edit)
+        layout.addWidget(general)
+
+        appearance = Section("Appearance", form)
+        dark_switch = Switch(appearance)
+        dark_switch.setText("Dark mode")
+        appearance.vbox().addWidget(dark_switch)
+        anim_switch = Switch(appearance)
+        anim_switch.setText("Enable animations")
+        anim_switch.setChecked(True)
+        appearance.vbox().addWidget(anim_switch)
+        layout.addWidget(appearance)
+
+        layout.addStretch()
+
+        buttons = QHBoxLayout()
+        buttons.addStretch()
+        save_btn = QPushButton("Save", form)
+        save_btn.setDefault(True)
+        buttons.addWidget(save_btn)
+        cancel_btn = QPushButton("Cancel", form)
+        cancel_btn.setFlat(True)
+        buttons.addWidget(cancel_btn)
+        layout.addLayout(buttons)
 
 
 class DemoWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
         self.setWindowTitle("PyQt6-Qlementine Demo")
-        self.setMinimumSize(600, 400)
-        self.resize(700, 800)
 
-        tabs = QTabWidget()
+        tabs = QTabWidget(self)
         self.setCentralWidget(tabs)
 
-        # --- Tab 1: Widget Gallery ---
+        # --- Gallery tab (2-column) ---
         gallery = QWidget()
-        scroll = QScrollArea()
-        scroll.setWidgetResizable(True)
-        scroll.setWidget(gallery)
+        columns = QHBoxLayout(gallery)
+        left = QVBoxLayout()
+        right = QVBoxLayout()
+        columns.addLayout(left, 1)
+        columns.addLayout(right, 1)
 
-        gallery_layout = QVBoxLayout(gallery)
-        gallery.setSizePolicy(
-            gallery.sizePolicy().horizontalPolicy(),
-            gallery.sizePolicy().verticalPolicy(),
-        )
+        left.addWidget(LabelsSection(gallery))
+        left.addWidget(ButtonsSection(gallery))
+        left.addWidget(InputsSection(gallery))
+        right.addWidget(TogglesAndChecks(gallery))
+        right.addWidget(SlidersAndProgress(gallery))
+        right.addWidget(QlementineWidgets(gallery))
+        left.addStretch()
+        right.addStretch()
 
-        _setup_labels(gallery_layout)
-        _setup_buttons(gallery_layout)
-        _setup_inputs(gallery_layout)
-        _setup_toggles(gallery_layout)
-        _setup_sliders(gallery_layout)
-        _setup_qlementine_widgets(gallery_layout)
-        gallery_layout.addStretch()
+        tabs.addTab(gallery, "Widget Gallery")
+        tabs.addTab(SettingsForm(self), "Form Example")
 
-        tabs.addTab(scroll, "Widget Gallery")
+        self.resize(1000, 700)
 
-        # --- Tab 2: Form Example ---
-        form = QWidget()
-        form_scroll = QScrollArea()
-        form_scroll.setWidgetResizable(True)
-        form_scroll.setWidget(form)
-        form_layout = QVBoxLayout(form)
 
-        title = Label()
-        title.setText("Settings")
-        title.setRole(TextRole.H2)
-        form_layout.addWidget(title)
+def _setup_zoom_shortcuts(window: QMainWindow, style: QlementineStyle) -> None:
+    """Wire up Ctrl+Shift+=/+/- zoom shortcuts."""
 
-        general = _make_section("General")
-        gl = general.layout()
-        name_edit = LineEdit()
-        name_edit.setPlaceholderText("Project name")
-        gl.addWidget(name_edit)
-        desc_edit = PlainTextEdit()
-        desc_edit.setPlaceholderText("Description")
-        desc_edit.setFixedHeight(60)
-        gl.addWidget(desc_edit)
-        form_layout.addWidget(general)
+    def zoom_in() -> None:
+        style.setScaleFactor(style.scaleFactor() + ZOOM_STEP)
 
-        appearance = _make_section("Appearance")
-        al = appearance.layout()
-        dark_switch = Switch()
-        dark_switch.setText("Dark mode")
-        al.addWidget(dark_switch)
-        anim_switch = Switch()
-        anim_switch.setText("Enable animations")
-        anim_switch.setChecked(True)
-        al.addWidget(anim_switch)
-        form_layout.addWidget(appearance)
+    def zoom_out() -> None:
+        style.setScaleFactor(style.scaleFactor() - ZOOM_STEP)
 
-        form_layout.addStretch()
+    def reset_zoom() -> None:
+        style.setScaleFactor(1.0)
 
-        row = QHBoxLayout()
-        row.addStretch()
-        save_btn = QPushButton("Save")
-        save_btn.setDefault(True)
-        row.addWidget(save_btn)
-        cancel_btn = QPushButton("Cancel")
-        cancel_btn.setFlat(True)
-        row.addWidget(cancel_btn)
-        form_layout.addLayout(row)
-
-        tabs.addTab(form_scroll, "Form Example")
+    mods = Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.ShiftModifier
+    QShortcut(QKeySequence(mods | Qt.Key.Key_Equal), window, zoom_in)  # type: ignore
+    QShortcut(QKeySequence(mods | Qt.Key.Key_Plus), window, zoom_in)  # type: ignore
+    QShortcut(QKeySequence(mods | Qt.Key.Key_Minus), window, zoom_out)  # type: ignore
+    QShortcut(QKeySequence(mods | Qt.Key.Key_0), window, reset_zoom)  # type: ignore
 
 
 def main() -> None:
     app = QApplication(sys.argv)
     app.setApplicationDisplayName("Qlementine Demo")
 
-    style = QlementineStyle(app)
-    style.setAutoIconColor(AutoIconColor.TextColor)
-    style.setAnimationsEnabled(True)
-    app.setStyle(style)
-
     window = DemoWindow()
+    if "--unstyled" not in sys.argv:
+        style = QlementineStyle(app)
+        style.setAutoIconColor(AutoIconColor.TextColor)
+        style.setAnimationsEnabled(True)
+        app.setStyle(style)
+        _setup_zoom_shortcuts(window, style)
+
     window.show()
     sys.exit(app.exec())
 
