@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from _qt_compat import Qlementine, QColor, QSize
+from _qt_compat import QColor, Qlementine, QSize
 
 Theme = Qlementine.Theme
 ThemeMeta = Qlementine.ThemeMeta
