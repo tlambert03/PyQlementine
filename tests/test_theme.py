@@ -2,7 +2,11 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from _qt_compat import QColor, Qlementine, QSize
+
+THEMES_DIR = Path(__file__).parent / "themes"
 
 Theme = Qlementine.Theme
 ThemeMeta = Qlementine.ThemeMeta
@@ -33,48 +37,46 @@ def test_theme_meta_set_fields():
 # --- Theme defaults ---
 
 
-def test_theme_default_meta():
+def test_theme_default_meta(qapp):
     t = Theme()
     assert t.meta.name == ""
 
 
-def test_theme_default_animation_duration():
+def test_theme_default_animation_duration(qapp):
     assert Theme().animationDuration == 192
 
 
-def test_theme_default_border_radius():
+def test_theme_default_border_radius(qapp):
     assert Theme().borderRadius == 6.0
 
 
-def test_theme_default_control_heights():
+def test_theme_default_control_heights(qapp):
     t = Theme()
     assert t.controlHeightLarge == 28
     assert t.controlHeightMedium == 24
     assert t.controlHeightSmall == 16
 
 
-def test_theme_default_font_size():
+def test_theme_default_font_size(qapp):
     assert Theme().fontSize == 12
 
 
-def test_theme_default_spacing():
+def test_theme_default_spacing(qapp):
     assert Theme().spacing == 8
 
 
-def test_theme_default_icon_size():
-    t = Theme()
-    assert t.iconSize == QSize(16, 16)
+def test_theme_default_icon_size(qapp):
+    assert Theme().iconSize == QSize(16, 16)
 
 
-def test_theme_default_border_width():
-    t = Theme()
-    assert t.borderWidth == 1.0
+def test_theme_default_border_width(qapp):
+    assert Theme().borderWidth == 1.0
 
 
 # --- Theme color properties ---
 
 
-def test_theme_colors_are_qcolor():
+def test_theme_colors_are_qcolor(qapp):
     t = Theme()
     assert isinstance(t.backgroundColorMain1, QColor)
     assert isinstance(t.primaryColor, QColor)
@@ -90,13 +92,12 @@ def test_theme_colors_are_qcolor():
 # --- Theme serialization ---
 
 
-def test_theme_to_json_not_null():
-    t = Theme()
-    doc = t.toJson()
+def test_theme_to_json_not_null(qapp):
+    doc = Theme().toJson()
     assert not doc.isNull()
 
 
-def test_theme_json_roundtrip():
+def test_theme_json_roundtrip(qapp):
     t = Theme()
     t.meta.name = "RoundTrip"
     t.meta.version = "2.0"
@@ -111,13 +112,47 @@ def test_theme_json_roundtrip():
     assert restored.borderRadius == t.borderRadius
 
 
-def test_theme_equality():
-    a = Theme()
-    b = Theme()
-    assert a == b
+def test_theme_from_json_path_light(qapp):
+    t = Theme.fromJsonPath(str(THEMES_DIR / "light.json"))
+    assert t is not None
+    assert t.meta.name == "Light"
+    assert t.meta.author == "Olivier Cléro"
+    assert t.meta.version == "1.5.0"
+    assert t.backgroundColorMain1 == QColor("#ffffff")
 
 
-def test_theme_inequality_after_change():
+def test_theme_from_json_path_dark(qapp):
+    t = Theme.fromJsonPath(str(THEMES_DIR / "dark.json"))
+    assert t is not None
+    assert t.meta.name == "Dark"
+    assert t.backgroundColorMain1 == QColor("#1f2127")
+
+
+def test_theme_from_json_path_nonexistent(qapp):
+    import pytest
+
+    with pytest.raises(ValueError, match="Failed to load theme"):
+        Theme.fromJsonPath("/nonexistent/path.json")
+
+
+def test_theme_from_json_doc_with_fixture(qapp):
+    try:
+        from PyQt6.QtCore import QJsonDocument
+    except ImportError:
+        from PySide6.QtCore import QJsonDocument
+
+    path = THEMES_DIR / "light.json"
+    doc = QJsonDocument.fromJson(path.read_bytes())
+    t = Theme.fromJsonDoc(doc)
+    assert t is not None
+    assert t.meta.name == "Light"
+
+
+def test_theme_equality(qapp):
+    assert Theme() == Theme()
+
+
+def test_theme_inequality_after_change(qapp):
     a = Theme()
     b = Theme()
     b.borderRadius = 999.0
@@ -127,13 +162,13 @@ def test_theme_inequality_after_change():
 # --- ThemeManager ---
 
 
-def test_theme_manager_empty(qtbot):
+def test_theme_manager_empty(qapp):
     tm = ThemeManager()
     assert tm.themeCount() == 0
     assert tm.currentTheme() == ""
 
 
-def test_theme_manager_add_theme(qtbot):
+def test_theme_manager_add_theme(qapp):
     tm = ThemeManager()
     t = Theme()
     t.meta.name = "Light"
@@ -141,7 +176,7 @@ def test_theme_manager_add_theme(qtbot):
     assert tm.themeCount() == 1
 
 
-def test_theme_manager_set_current_theme(qtbot):
+def test_theme_manager_set_current_theme(qapp):
     tm = ThemeManager()
     t1 = Theme()
     t1.meta.name = "Light"
@@ -155,7 +190,7 @@ def test_theme_manager_set_current_theme(qtbot):
     assert tm.currentThemeIndex() == 1
 
 
-def test_theme_manager_set_current_theme_index(qtbot):
+def test_theme_manager_set_current_theme_index(qapp):
     tm = ThemeManager()
     for name in ("A", "B", "C"):
         t = Theme()
@@ -167,7 +202,7 @@ def test_theme_manager_set_current_theme_index(qtbot):
     assert tm.currentThemeIndex() == 2
 
 
-def test_theme_manager_theme_index_lookup(qtbot):
+def test_theme_manager_theme_index_lookup(qapp):
     tm = ThemeManager()
     for name in ("X", "Y", "Z"):
         t = Theme()
@@ -179,7 +214,7 @@ def test_theme_manager_theme_index_lookup(qtbot):
     assert tm.themeIndex("Z") == 2
 
 
-def test_theme_manager_next_previous(qtbot):
+def test_theme_manager_next_previous(qapp):
     tm = ThemeManager()
     for name in ("A", "B", "C"):
         t = Theme()
@@ -199,7 +234,7 @@ def test_theme_manager_next_previous(qtbot):
     assert tm.currentTheme() == "B"
 
 
-def test_theme_manager_with_style(qtbot):
+def test_theme_manager_with_style(qapp):
     style = QlementineStyle()
     tm = ThemeManager()
     tm.setStyle(style)
@@ -212,3 +247,37 @@ def test_theme_manager_with_style(qtbot):
 
     # Verify the style was actually updated via the ThemeManager
     assert style.theme().borderRadius == 12.0
+
+
+def test_theme_manager_load_directory(qapp):
+    tm = ThemeManager()
+    tm.loadDirectory(str(THEMES_DIR))
+    assert tm.themeCount() == 2
+
+
+def test_theme_manager_load_directory_and_select(qapp):
+    style = QlementineStyle()
+    tm = ThemeManager()
+    tm.setStyle(style)
+    tm.loadDirectory(str(THEMES_DIR))
+
+    tm.setCurrentTheme("Dark")
+    assert tm.currentTheme() == "Dark"
+    assert style.theme().backgroundColorMain1 == QColor("#1f2127")
+
+    tm.setCurrentTheme("Light")
+    assert tm.currentTheme() == "Light"
+    assert style.theme().backgroundColorMain1 == QColor("#ffffff")
+
+
+def test_theme_manager_load_directory_navigate(qapp):
+    tm = ThemeManager()
+    tm.loadDirectory(str(THEMES_DIR))
+    assert tm.themeCount() == 2
+
+    tm.setCurrentThemeIndex(0)
+    first = tm.currentTheme()
+    tm.setNextTheme()
+    second = tm.currentTheme()
+    assert first != second
+    assert {first, second} == {"Light", "Dark"}

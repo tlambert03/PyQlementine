@@ -54,6 +54,13 @@ jobs:
       - uses: astral-sh/setup-uv@v7
       - uses: ilammy/msvc-dev-cmd@v1
 
+      - name: Apply submodule patches
+        shell: bash
+        run: |
+          for p in patches/*.patch; do
+            [ -f "$p" ] && git -C qlementine apply "$GITHUB_WORKSPACE/$p"
+          done
+
       - name: Build wheels via cibuildwheel
         uses: pypa/cibuildwheel@v3.4
         env:
