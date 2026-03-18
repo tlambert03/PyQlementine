@@ -1,13 +1,3 @@
-# /// script
-# requires-python = ">=3.14"
-# dependencies = [
-#     "pdbpp>=0.12.1",
-#     "pyqt6-qlementine",
-# ]
-#
-# [tool.uv.sources]
-# pyqt6-qlementine = { path = "../packages/PyQt6-Qlementine" }
-# ///
 from PyQt6 import QtWidgets
 from PyQt6.QtCore import QJsonDocument, Qt
 from PyQt6Qlementine import QlementineStyle, Theme
@@ -130,7 +120,7 @@ theme_dict = {
 doc = QJsonDocument.fromVariant(theme_dict)
 theme = Theme.fromJsonDoc(doc)  # raises ValueError on failure
 
-# style.setTheme(theme)
+style.setTheme(theme)
 
 sample_widget = QtWidgets.QWidget()
 sample_widget.setWindowTitle("Sample Widget")

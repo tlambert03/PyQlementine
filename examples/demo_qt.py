@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import sys
 from datetime import date, time
+from pathlib import Path
 
 from PyQt6.QtCore import QDate, Qt, QTime
 from PyQt6.QtGui import QAction, QKeySequence, QShortcut
@@ -59,7 +60,7 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from PyQt6Qlementine import AutoIconColor, QlementineStyle
+from PyQt6Qlementine import AutoIconColor, QlementineStyle, ThemeManager
 
 # ---------------------------------------------------------------------------
 # Tab 1: Widget Gallery (2-column)
@@ -479,7 +480,7 @@ class DialogsSection(QGroupBox):
             )
 
     def _font(self) -> None:
-        ok, font = QFontDialog.getFont(self.font(), self)
+        font, ok = QFontDialog.getFont(self.font(), self)
         if ok:
             self._result.setText(f"{font.family()}, {font.pointSize()}pt")
             self._result.setStyleSheet("")
@@ -723,6 +724,12 @@ def main() -> None:
         default="native",
         help="widget style to use (default: qlementine)",
     )
+    parser.add_argument(
+        "--theme",
+        choices=["Light", "Dark"],
+        default="Light",
+        help="widget theme to use (default: Light)",
+    )
     args, qt_args = parser.parse_known_args()
 
     app = QApplication([sys.argv[0], *qt_args])
@@ -736,6 +743,13 @@ def main() -> None:
         qlem.setAutoIconColor(AutoIconColor.TextColor)
         qlem.setAnimationsEnabled(True)
         app.setStyle(qlem)
+
+        mgr = ThemeManager()
+        mgr.setStyle(qlem)
+        themes_dir = str(Path(__file__).resolve().parent / "../tests/themes")
+        mgr.loadDirectory(themes_dir)
+        mgr.setCurrentTheme(args.theme)
+
         _setup_zoom_shortcuts(window, qlem)
 
     window.show()
