@@ -17,21 +17,6 @@ on:
         default: "manylinux_2_28"
 
 jobs:
-  build-sdist:
-    name: sdist
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          submodules: "recursive"
-          fetch-depth: 0
-      - uses: astral-sh/setup-uv@v7
-      - run: uv build --package ${{ inputs.package }} --sdist --out-dir dist
-      - uses: actions/upload-artifact@v7
-        with:
-          name: sdist-${{ inputs.package }}
-          path: dist/*.tar.gz
-
   build-wheels:
     name: ${{ matrix.os }}
     runs-on: ${{ matrix.os }}

@@ -24,7 +24,7 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v8
         with:
-          pattern: "{sdist,wheels}-PySide6-Qlementine*"
+          pattern: "wheels-PySide6-Qlementine*"
           path: dist
           merge-multiple: true
 
