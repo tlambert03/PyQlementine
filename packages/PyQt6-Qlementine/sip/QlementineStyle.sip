@@ -23,6 +23,9 @@ public:
     bool animationsEnabled() const;
     void setAnimationsEnabled(bool enabled);
 
+    double scaleFactor() const;
+    void setScaleFactor(double factor);
+
     virtual void triggerCompleteRepaint();
 
     void setAutoIconColor(AutoIconColor autoIconColor);
@@ -41,6 +44,7 @@ public:
 signals:
     void themeChanged();
     void animationsEnabledChanged();
+    void scaleFactorChanged();
 };
 
 QlementineStyle* appStyle();

@@ -56,6 +56,8 @@ public:
 
     QJsonDocument toJson() const;
 
+    Theme scaled(double factor) const;
+
     bool operator==(const Theme& other) const;
     bool operator!=(const Theme& other) const;
 

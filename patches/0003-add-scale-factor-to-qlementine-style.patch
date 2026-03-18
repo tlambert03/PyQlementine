@@ -1,0 +1,184 @@
+diff --git a/lib/include/oclero/qlementine/style/QlementineStyle.hpp b/lib/include/oclero/qlementine/style/QlementineStyle.hpp
+index a60ed25..f5e010d 100644
+--- a/lib/include/oclero/qlementine/style/QlementineStyle.hpp
++++ b/lib/include/oclero/qlementine/style/QlementineStyle.hpp
+@@ -21,6 +21,7 @@ class QlementineStyle : public QCommonStyle {
+   Q_OBJECT
+ 
+   Q_PROPERTY(bool animationsEnabled READ animationsEnabled WRITE setAnimationsEnabled NOTIFY animationsEnabledChanged)
++  Q_PROPERTY(double scaleFactor READ scaleFactor WRITE setScaleFactor NOTIFY scaleFactorChanged)
+ 
+ public:
+   enum class StandardPixmapExt {
+@@ -59,6 +60,10 @@ public:
+   void setAnimationsEnabled(bool enabled);
+   Q_SIGNAL void animationsEnabledChanged();
+ 
++  double scaleFactor() const;
++  void setScaleFactor(double factor);
++  Q_SIGNAL void scaleFactorChanged();
++
+   virtual void triggerCompleteRepaint();
+ 
+   void setAutoIconColor(AutoIconColor autoIconColor);
+diff --git a/lib/include/oclero/qlementine/style/Theme.hpp b/lib/include/oclero/qlementine/style/Theme.hpp
+index fdaa4a2..13af46b 100644
+--- a/lib/include/oclero/qlementine/style/Theme.hpp
++++ b/lib/include/oclero/qlementine/style/Theme.hpp
+@@ -202,6 +202,9 @@ public: // Values.
+ public:
+   QJsonDocument toJson() const;
+ 
++  /// Returns a copy with all dimension fields scaled by the given factor.
++  Theme scaled(double factor) const;
++
+ private:
+   void initializeFonts();
+   void initializePalette();
+diff --git a/lib/src/style/QlementineStyle.cpp b/lib/src/style/QlementineStyle.cpp
+index 836c117..a1a292c 100644
+--- a/lib/src/style/QlementineStyle.cpp
++++ b/lib/src/style/QlementineStyle.cpp
+@@ -246,6 +246,8 @@ struct QlementineStyleImpl {
+ 
+   QlementineStyle& owner;
+   Theme theme{};
++  Theme baseTheme{};
++  double scaleFactor{ 1.0 };
+   std::unique_ptr<QFontMetrics> fontMetricsBold{ nullptr };
+   WidgetAnimationManager animations;
+   std::unordered_map<QStyle::StandardPixmap, QIcon> standardIconCache;
+@@ -272,8 +274,9 @@ Theme const& QlementineStyle::theme() const {
+ }
+ 
+ void QlementineStyle::setTheme(Theme const& theme) {
+-  if (_impl->theme != theme) {
+-    _impl->theme = theme;
++  if (_impl->baseTheme != theme) {
++    _impl->baseTheme = theme;
++    _impl->theme = theme.scaled(_impl->scaleFactor);
+     Q_EMIT themeChanged();
+ 
+     triggerCompleteRepaint();
+@@ -299,6 +302,20 @@ void QlementineStyle::setAnimationsEnabled(bool enabled) {
+   }
+ }
+ 
++double QlementineStyle::scaleFactor() const {
++  return _impl->scaleFactor;
++}
++
++void QlementineStyle::setScaleFactor(double factor) {
++  factor = qBound(0.5, factor, 4.0);
++  if (qFuzzyCompare(_impl->scaleFactor, factor))
++    return;
++  _impl->scaleFactor = factor;
++  _impl->theme = _impl->baseTheme.scaled(factor);
++  Q_EMIT scaleFactorChanged();
++  triggerCompleteRepaint();
++}
++
+ void QlementineStyle::triggerCompleteRepaint() {
+   _impl->updateFonts();
+   _impl->updatePalette();
+diff --git a/lib/src/style/Theme.cpp b/lib/src/style/Theme.cpp
+index 48b9679..30ed94a 100644
+--- a/lib/src/style/Theme.cpp
++++ b/lib/src/style/Theme.cpp
+@@ -14,6 +14,8 @@
+ #include <QVector>
+ #include <QGuiApplication>
+ 
++#include <algorithm>
++#include <cmath>
+ #include <optional>
+ 
+ namespace oclero::qlementine {
+@@ -754,4 +756,87 @@ bool Theme::operator!=(const Theme& other) const {
+   return !(*this == other);
+ }
+ 
++Theme Theme::scaled(double factor) const {
++  if (qFuzzyCompare(factor, 1.0))
++    return *this;
++
++  Theme t = *this;
++
++  auto scaleInt = [factor](int v) -> int {
++    return v <= 0 ? v : std::max(1, static_cast<int>(std::round(v * factor)));
++  };
++  auto scaleDouble = [factor](double v) -> double {
++    return v <= 0.0 ? v : v * factor;
++  };
++  auto scaleSize = [&scaleInt](const QSize& s) -> QSize {
++    return { scaleInt(s.width()), scaleInt(s.height()) };
++  };
++
++  // Font sizes.
++  t.fontSize = scaleInt(fontSize);
++  t.fontSizeMonospace = scaleInt(fontSizeMonospace);
++  t.fontSizeH1 = scaleInt(fontSizeH1);
++  t.fontSizeH2 = scaleInt(fontSizeH2);
++  t.fontSizeH3 = scaleInt(fontSizeH3);
++  t.fontSizeH4 = scaleInt(fontSizeH4);
++  t.fontSizeH5 = scaleInt(fontSizeH5);
++  t.fontSizeS1 = scaleInt(fontSizeS1);
++
++  // Radii.
++  t.borderRadius = scaleDouble(borderRadius);
++  t.checkBoxBorderRadius = scaleDouble(checkBoxBorderRadius);
++  t.menuItemBorderRadius = scaleDouble(menuItemBorderRadius);
++  t.menuBarItemBorderRadius = scaleDouble(menuBarItemBorderRadius);
++
++  // Borders.
++  t.borderWidth = scaleInt(borderWidth);
++  t.focusBorderWidth = scaleInt(focusBorderWidth);
++
++  // Control sizes.
++  t.controlHeightLarge = scaleInt(controlHeightLarge);
++  t.controlHeightMedium = scaleInt(controlHeightMedium);
++  t.controlHeightSmall = scaleInt(controlHeightSmall);
++  t.controlDefaultWidth = scaleInt(controlDefaultWidth);
++
++  // Icons.
++  t.iconSize = scaleSize(iconSize);
++  t.iconSizeMedium = scaleSize(iconSizeMedium);
++  t.iconSizeLarge = scaleSize(iconSizeLarge);
++  t.iconSizeExtraSmall = scaleSize(iconSizeExtraSmall);
++
++  // Slider.
++  t.sliderTickSize = scaleInt(sliderTickSize);
++  t.sliderTickSpacing = scaleInt(sliderTickSpacing);
++  t.sliderTickThickness = scaleInt(sliderTickThickness);
++  t.sliderGrooveHeight = scaleInt(sliderGrooveHeight);
++
++  // ProgressBar.
++  t.progressBarGrooveHeight = scaleInt(progressBarGrooveHeight);
++
++  // Dial.
++  t.dialMarkLength = scaleInt(dialMarkLength);
++  t.dialMarkThickness = scaleInt(dialMarkThickness);
++  t.dialTickLength = scaleInt(dialTickLength);
++  t.dialTickSpacing = scaleInt(dialTickSpacing);
++  t.dialGrooveThickness = scaleInt(dialGrooveThickness);
++
++  // Spacing.
++  t.spacing = scaleInt(spacing);
++
++  // ScrollBar.
++  t.scrollBarThicknessFull = scaleInt(scrollBarThicknessFull);
++  t.scrollBarThicknessSmall = scaleInt(scrollBarThicknessSmall);
++  t.scrollBarMargin = scaleInt(scrollBarMargin);
++
++  // TabBar.
++  t.tabBarPaddingTop = scaleInt(tabBarPaddingTop);
++  t.tabBarTabMaxWidth = scaleInt(tabBarTabMaxWidth);
++  t.tabBarTabMinWidth = scaleInt(tabBarTabMinWidth);
++
++  // Regenerate fonts from the scaled font sizes.
++  t.initializeFonts();
++
++  return t;
++}
++
+ } // namespace oclero::qlementine
