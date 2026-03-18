@@ -35,6 +35,7 @@ Homepage = "https://github.com/pyapp-kit/PyQlementine"
 [tool.scikit-build]
 cmake.build-type = "Release"
 wheel.packages = ["PySide6Qlementine"]
+wheel.py-api = "cp310"
 
 [tool.scikit-build.cmake.define]
 CMAKE_TOOLCHAIN_FILE = ""
