@@ -116,7 +116,7 @@ sources = [
 	"../../qlementine/lib/src/widgets/NavigationBar.cpp",
 	"../../qlementine/lib/src/widgets/NotificationBadge.cpp",
 	"../../qlementine/lib/src/widgets/PlainTextEdit.cpp",
-	"src/Popover_patched.cpp",
+	"../../qlementine/lib/src/widgets/Popover.cpp",
 	"../../qlementine/lib/src/widgets/PopoverButton.cpp",
 	"../../qlementine/lib/src/widgets/RoundedFocusFrame.cpp",
 	"../../qlementine/lib/src/widgets/SegmentedControl.cpp",

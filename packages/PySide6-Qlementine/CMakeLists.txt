@@ -113,7 +113,7 @@ qt_add_library(qlementine_static STATIC
     ${QLEMENTINE_SRC}/src/widgets/NavigationBar.cpp
     ${QLEMENTINE_SRC}/src/widgets/NotificationBadge.cpp
     ${QLEMENTINE_SRC}/src/widgets/PlainTextEdit.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Popover_patched.cpp
+    ${QLEMENTINE_SRC}/src/widgets/Popover.cpp
     ${QLEMENTINE_SRC}/src/widgets/PopoverButton.cpp
     ${QLEMENTINE_SRC}/src/widgets/RoundedFocusFrame.cpp
     ${QLEMENTINE_SRC}/src/widgets/SegmentedControl.cpp
