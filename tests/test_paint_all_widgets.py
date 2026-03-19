@@ -6,7 +6,7 @@ import inspect
 
 import pytest
 
-from _qt_compat import Qlementine, QTimer, QtWidgets
+from _qt_compat import Qlementine, QtCore, QTimer, QtWidgets
 
 QlementineStyle = Qlementine.QlementineStyle
 
@@ -29,11 +29,17 @@ def _widget_ids() -> list[str]:
 
 
 @pytest.fixture()
-def qlementine_app(qapp):
+def qlementine_app(qapp: QtWidgets.QApplication):
     """Apply QlementineStyle to the application for the duration of the test."""
     style = QlementineStyle(qapp)
     qapp.setStyle(style)
-    return qapp
+    warnings = []
+    QtCore.qInstallMessageHandler(lambda mode, ctx, msg: warnings.append(msg))
+    try:
+        yield qapp
+    finally:
+        QtCore.qInstallMessageHandler(None)
+    assert not warnings, "Qt warnings emitted:\n" + "\n".join(warnings)
 
 
 @pytest.mark.parametrize("cls", _ALL_WIDGET_CLASSES, ids=_widget_ids())

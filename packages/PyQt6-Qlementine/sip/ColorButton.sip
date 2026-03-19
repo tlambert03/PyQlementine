@@ -17,6 +17,10 @@ public:
 
     const QColor& color() const;
     void setColor(const QColor& color);
+    void setColor(const QString& color);
+%MethodCode
+    sipCpp->setColor(QColor(*a0));
+%End
 
     ColorMode colorMode() const;
     void setColorMode(ColorMode mode);

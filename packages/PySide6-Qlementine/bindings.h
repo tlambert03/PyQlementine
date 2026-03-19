@@ -1,6 +1,9 @@
 #ifndef PYSIDE6_QLEMENTINE_BINDINGS_H
 #define PYSIDE6_QLEMENTINE_BINDINGS_H
 
+// Qt types needed by shiboken to resolve all QStyle virtual overload signatures
+#include <QApplication>
+
 // Core types
 #include <oclero/qlementine/Common.hpp>
 #include <oclero/qlementine/utils/RadiusesF.hpp>

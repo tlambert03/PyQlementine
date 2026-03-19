@@ -5,7 +5,9 @@
     <load-typesystem name="typesystem_gui.xml" generate="no"/>
     <load-typesystem name="typesystem_widgets.xml" generate="no"/>
 
-    <!-- Reject appStyle free function (generates broken overload code in shiboken) -->
+    <!-- ====== REJECTED FREE FUNCTIONS ======
+         These are internal C++ utilities that either generate broken shiboken
+         overload code or operate on types not exposed in our bindings. -->
     <rejection class="oclero::qlementine" function-name="appStyle"/>
     <rejection class="" function-name="colorizeImage"/>
     <rejection class="" function-name="colorizePixmap"/>
@@ -36,41 +38,23 @@
     <rejection class="" function-name="getStatusBadgeSizes"/>
     <rejection class="" function-name="drawStatusBadge"/>
 
-    <!-- Reject QStyle override methods on QlementineStyle (reference types not in typesystem) -->
-    <rejection class="oclero::qlementine::QlementineStyle" function-name="polish"/>
-    <rejection class="oclero::qlementine::QlementineStyle" function-name="unpolish"/>
-    <rejection class="oclero::qlementine::QlementineStyle" function-name="drawPrimitive"/>
-    <rejection class="oclero::qlementine::QlementineStyle" function-name="drawControl"/>
-    <rejection class="oclero::qlementine::QlementineStyle" function-name="drawComplexControl"/>
-    <rejection class="oclero::qlementine::QlementineStyle" function-name="pixelMetric"/>
-    <rejection class="oclero::qlementine::QlementineStyle" function-name="sizeFromContents"/>
-    <rejection class="oclero::qlementine::QlementineStyle" function-name="subElementRect"/>
-    <rejection class="oclero::qlementine::QlementineStyle" function-name="subControlRect"/>
-    <rejection class="oclero::qlementine::QlementineStyle" function-name="hitTestComplexControl"/>
-    <rejection class="oclero::qlementine::QlementineStyle" function-name="styleHint"/>
-    <rejection class="oclero::qlementine::QlementineStyle" function-name="standardIcon"/>
-    <rejection class="oclero::qlementine::QlementineStyle" function-name="standardPixmap"/>
-    <rejection class="oclero::qlementine::QlementineStyle" function-name="standardPalette"/>
-    <rejection class="oclero::qlementine::QlementineStyle" function-name="generatedIconPixmap"/>
-    <rejection class="oclero::qlementine::QlementineStyle" function-name="layoutSpacing"/>
-    <rejection class="oclero::qlementine::QlementineStyle" function-name="itemTextRect"/>
-    <rejection class="oclero::qlementine::QlementineStyle" function-name="itemPixmapRect"/>
-    <rejection class="oclero::qlementine::QlementineStyle" function-name="drawItemText"/>
-    <rejection class="oclero::qlementine::QlementineStyle" function-name="drawItemPixmap"/>
-    <rejection class="oclero::qlementine::QlementineStyle" function-name="widgetStatus"/>
+    <!-- ====== REJECTED METHODS: std::function parameters ======
+         Shiboken cannot marshal std::function<> types. -->
     <rejection class="oclero::qlementine::QlementineStyle" function-name="setIconPathGetter"/>
-    <rejection class="oclero::qlementine::QlementineStyle" function-name="getColorizedPixmap"/>
-
-    <!-- Reject std::function methods -->
     <rejection class="oclero::qlementine::Menu" function-name="setEnabledPredicate"/>
     <rejection class="oclero::qlementine::Menu" function-name="setVisiblePredicate"/>
     <rejection class="oclero::qlementine::Popover" function-name="setManualPositioningCallback"/>
 
-    <!-- Reject internal methods -->
+    <!-- ====== REJECTED METHODS: internal ====== -->
+    <rejection class="oclero::qlementine::QlementineStyle" function-name="getColorizedPixmap"/>
     <rejection class="oclero::qlementine::AbstractItemListWidget" function-name="initStyleOptionFocus"/>
     <rejection class="oclero::qlementine::CommandLinkButton" function-name="initStyleOption"/>
 
-    <!-- Reject classes not in our public API -->
+    <!-- ====== REJECTED CLASSES ======
+         Internal implementation details, custom QStyleOption subclasses used
+         only inside QlementineStyle's C++ drawing code (never passed across
+         the Python boundary in QStyle virtual signatures), and classes not
+         part of our public API. -->
     <rejection class="oclero::qlementine::WidgetAnimationManager"/>
     <rejection class="oclero::qlementine::WidgetAnimator"/>
     <rejection class="oclero::qlementine::ThemeEditor"/>
@@ -110,7 +94,7 @@
             <value-type name="Theme">
                 <!-- std::optional<Theme> returns are dropped by shiboken; re-add via add-function -->
                 <add-function signature="fromJsonPath(const QString&amp; @jsonPath@)" return-type="oclero::qlementine::Theme" static="yes">
-                    <inject-code class="target" position="beginning" language="target">
+                    <inject-code class="target" position="beginning">
                         auto result = oclero::qlementine::Theme::fromJsonPath(%1);
                         if (result.has_value()) {
                             oclero::qlementine::Theme cppResult = result.value();
@@ -123,7 +107,7 @@
                 </add-function>
 
                 <add-function signature="fromJsonDoc(const QJsonDocument&amp; @jsonDoc@)" return-type="oclero::qlementine::Theme" static="yes">
-                    <inject-code class="target" position="beginning" language="target">
+                    <inject-code class="target" position="beginning">
                         auto result = oclero::qlementine::Theme::fromJsonDoc(%1);
                         if (result.has_value()) {
                             oclero::qlementine::Theme cppResult = result.value();
@@ -144,9 +128,52 @@
                 <enum-type name="ContentsTypeExt"/>
                 <enum-type name="PixelMetricExt"/>
                 <enum-type name="PrimitiveElementExt"/>
-                <!-- Per-widget overloads not exposed in SIP -->
+
+                <!-- Per-widget overloads not exposed -->
                 <modify-function signature="setAutoIconColor(QWidget*,oclero::qlementine::AutoIconColor)" remove="all"/>
                 <modify-function signature="autoIconColor(const QWidget*)const" remove="all"/>
+
+                <!-- ====== QStyle/QProxyStyle virtual overrides ======
+                     These MUST be declared so Shiboken generates the virtual
+                     dispatch shim in QlementineStyleWrapper.  Without them,
+                     the C++ vtable entry for QlementineStyle's override is
+                     bypassed and Qt falls back to QCommonStyle.
+
+                     Full exposure: callable from Python AND overridable by
+                     Python subclasses.  allow-thread="yes" on painting methods
+                     releases the GIL during the C++ call. -->
+
+                <!-- Drawing -->
+                <modify-function signature="drawPrimitive(QStyle::PrimitiveElement,const QStyleOption*,QPainter*,const QWidget*)const"
+                                 allow-thread="yes"/>
+                <modify-function signature="drawControl(QStyle::ControlElement,const QStyleOption*,QPainter*,const QWidget*)const"
+                                 allow-thread="yes"/>
+                <modify-function signature="drawComplexControl(QStyle::ComplexControl,const QStyleOptionComplex*,QPainter*,const QWidget*)const"
+                                 allow-thread="yes"/>
+
+                <!-- Metrics & layout -->
+                <modify-function signature="pixelMetric(QStyle::PixelMetric,const QStyleOption*,const QWidget*)const"/>
+                <modify-function signature="sizeFromContents(QStyle::ContentsType,const QStyleOption*,const QSize&amp;,const QWidget*)const"/>
+                <modify-function signature="subElementRect(QStyle::SubElement,const QStyleOption*,const QWidget*)const"/>
+                <modify-function signature="subControlRect(QStyle::ComplexControl,const QStyleOptionComplex*,QStyle::SubControl,const QWidget*)const"/>
+                <modify-function signature="hitTestComplexControl(QStyle::ComplexControl,const QStyleOptionComplex*,const QPoint&amp;,const QWidget*)const"/>
+                <modify-function signature="layoutSpacing(QSizePolicy::ControlType,QSizePolicy::ControlType,Qt::Orientation,const QStyleOption*,const QWidget*)const"/>
+
+                <!-- Hints & icons -->
+                <modify-function signature="styleHint(QStyle::StyleHint,const QStyleOption*,const QWidget*,QStyleHintReturn*)const"/>
+                <modify-function signature="standardIcon(QStyle::StandardPixmap,const QStyleOption*,const QWidget*)const"/>
+                <modify-function signature="standardPixmap(QStyle::StandardPixmap,const QStyleOption*,const QWidget*)const"/>
+                <modify-function signature="generatedIconPixmap(QIcon::Mode,const QPixmap&amp;,const QStyleOption*)const"/>
+                <modify-function signature="standardPalette()const"/>
+                <!-- Polish / unpolish -->
+                <modify-function signature="polish(QWidget*)"/>
+                <modify-function signature="polish(QPalette&amp;)"/>
+                <modify-function signature="polish(QApplication*)" remove="all"/>
+                <modify-function signature="unpolish(QWidget*)"/>
+                <modify-function signature="unpolish(QApplication*)" remove="all"/>
+
+                <!-- Qlementine-specific public method -->
+                <modify-function signature="widgetStatus(const QWidget*)const"/>
             </object-type>
 
             <object-type name="ThemeManager"/>
