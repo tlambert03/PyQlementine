@@ -79,6 +79,12 @@ install-qt qt_version="6.8.1":
         uvx --from aqtinstall aqt install-qt {{host}} desktop {{qt_version}} {{win_arch}} --outputdir Qt \
     }
 
+# point the qlementine submodule to a specific commit (default: origin/dev HEAD)
+update-submodule sha="origin/dev":
+    git -C qlementine fetch origin
+    git -C qlementine checkout {{sha}}
+    git add qlementine
+
 _clone:
     git submodule update --init --recursive
     @just _patch
