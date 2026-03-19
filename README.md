@@ -20,6 +20,32 @@ pip install PySide6-Qlementine
 
 ## Usage
 
+```python
+# or PySide6 & PySide6Qlementine
+from PyQt6.QtWidgets import QApplication
+from PyQt6.QtCore import QJsonDocument
+from PyQt6Qlementine import QlementineStyle, Theme
+
+app = QApplication([])
+
+# Apply Qlementine as the application style
+# (this alone will apply the default Qlementine theme, which is lovely)
+style = QlementineStyle(app)
+app.setStyle(style)
+
+# Define a custom theme, for all keys, see:
+# https://oclero.github.io/qlementine/theme/#full-example
+theme_dict = {
+    "meta": {"name": "Custom", "author": "Your Name", "version": "1.0"},
+    "primaryColor": "#ff00ff",
+    "backgroundColorMain1": "#1a1a2e",
+    "backgroundColorMain2": "#1a1a2e",
+}
+
+theme = Theme.fromJsonDoc(QJsonDocument.fromVariant(theme_dict))
+style.setTheme(theme)
+```
+
 See [C++ documentation](https://oclero.github.io/qlementine) for more information.
 
 See also [examples in this repo](./examples/).
