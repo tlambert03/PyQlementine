@@ -70,7 +70,7 @@ this — colors, spacing, animations, and pixel metrics are computed natively in
 C++ with full `QPainter` access, zero parsing overhead, and complete respect for
 `QPalette`. The reason Python libraries haven't taken this approach is that
 subclassing `QProxyStyle` in Python incurs a C++/Python boundary crossing on
-*every* paint call, making it impractical for anything beyond icon overrides.
+*every* paint call, making it unperformant for anything beyond icon overrides.
 
 `Qlementine` sidesteps that entirely: the style is implemented in C++ and simply
 exposed to Python (through these bindings), giving you the correctness and
