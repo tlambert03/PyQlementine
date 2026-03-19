@@ -62,3 +62,7 @@ The packaged/distributed bindings are:
 - [MIT for PySide6-Qlementine](./packages/PySide6-Qlementine/LICENSE)
 
 See the `LICENSE` file in each package for more details.
+
+## Developers & Contributing
+
+Contributions are welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md) for dev tips.
