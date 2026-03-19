@@ -82,7 +82,7 @@ sources = [
 	"../../qlementine/lib/src/animation/WidgetAnimator.cpp",
 	"../../qlementine/lib/src/resources/ResourceInitialization.cpp",
 	"../../qlementine/lib/src/style/Delegates.cpp",
-	"src/EventFilters_wrapper.cpp",
+	"../../qlementine/lib/src/style/EventFilters.cpp",
 	"../../qlementine/lib/src/style/QlementineStyle.cpp",
 	"../../qlementine/lib/src/style/Theme.cpp",
 	"../../qlementine/lib/src/style/ThemeManager.cpp",

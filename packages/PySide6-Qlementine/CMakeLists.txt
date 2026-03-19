@@ -79,7 +79,7 @@ qt_add_library(qlementine_static STATIC
     ${QLEMENTINE_SRC}/src/animation/WidgetAnimator.cpp
     ${QLEMENTINE_SRC}/src/resources/ResourceInitialization.cpp
     ${QLEMENTINE_SRC}/src/style/Delegates.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/EventFilters_wrapper.cpp
+    ${QLEMENTINE_SRC}/src/style/EventFilters.cpp
     ${QLEMENTINE_SRC}/src/style/QlementineStyle.cpp
     ${QLEMENTINE_SRC}/src/style/Theme.cpp
     ${QLEMENTINE_SRC}/src/style/ThemeManager.cpp
