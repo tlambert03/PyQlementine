@@ -5,16 +5,11 @@ from __future__ import annotations
 import os
 import tempfile
 
-from _qt_compat import QColor, QIcon, Qlementine, QSize
+from _qt_compat import QColor, QIcon, QImage, Qlementine, QPixmap, QSize, QWidget
 
 IconTheme = Qlementine.IconTheme
 AutoIconColor = Qlementine.AutoIconColor
 ColorizeMode = Qlementine.ColorizeMode
-
-try:
-    from PyQt6.QtGui import QImage, QPixmap
-except ImportError:
-    from PySide6.QtGui import QImage, QPixmap  # type: ignore
 
 
 # ---- Minimal SVG for testing ----
@@ -217,8 +212,6 @@ def test_style_get_colorized_pixmap_text_color(qapp):
 
 
 def test_per_widget_auto_icon_color(qapp):
-    from _qt_compat import QWidget
-
     style = Qlementine.QlementineStyle()
     w = QWidget()
     w.setStyle(style)
@@ -227,8 +220,6 @@ def test_per_widget_auto_icon_color(qapp):
 
 
 def test_per_widget_auto_icon_color_text(qapp):
-    from _qt_compat import QWidget
-
     style = Qlementine.QlementineStyle()
     w = QWidget()
     w.setStyle(style)

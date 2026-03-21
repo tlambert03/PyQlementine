@@ -2,14 +2,17 @@
 
 from __future__ import annotations
 
-from _qt_compat import QColor, Qlementine, QSize
-
-try:
-    from PyQt6.QtCore import QModelIndex
-    from PyQt6.QtGui import QFont, QIcon, QPainter, QPalette, QPixmap
-except ImportError:
-    from PySide6.QtCore import QModelIndex  # type: ignore
-    from PySide6.QtGui import QFont, QIcon, QPainter, QPalette, QPixmap  # type: ignore
+from _qt_compat import (
+    QColor,
+    QFont,
+    QIcon,
+    Qlementine,
+    QModelIndex,
+    QPainter,
+    QPalette,
+    QPixmap,
+    QSize,
+)
 
 QlementineStyle = Qlementine.QlementineStyle
 MouseState = Qlementine.MouseState
