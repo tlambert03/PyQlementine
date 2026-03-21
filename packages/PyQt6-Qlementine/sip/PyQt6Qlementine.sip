@@ -13,6 +13,16 @@
 %Include IconUtils.sip
 %Include ImageUtils.sip
 %Include QlementineStyle.sip
+%Include ColorUtils.sip
+%Include FontUtils.sip
+%Include GeometryUtils.sip
+%Include StateUtils.sip
+%Include StyleUtils.sip
+%Include WidgetUtils.sip
+%Include LayoutUtils.sip
+%Include PrimitiveUtils.sip
+%Include BadgeUtils.sip
+%Include MenuUtils.sip
 %Include ThemeManager.sip
 %Include RoundedFocusFrame.sip
 %Include AbstractItemListWidget.sip

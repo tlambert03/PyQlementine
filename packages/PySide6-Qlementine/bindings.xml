@@ -6,33 +6,45 @@
     <load-typesystem name="typesystem_widgets.xml" generate="no"/>
 
     <!-- ====== REJECTED FREE FUNCTIONS ======
-         These are internal C++ utilities that either generate broken shiboken
-         overload code or operate on types not exposed in our bindings. -->
+         Internal cache-key helpers and functions returning std types that
+         shiboken cannot marshal (std::optional, std::tuple, std::pair,
+         std::function). -->
     <rejection class="oclero::qlementine" function-name="appStyle"/>
-    <rejection class="" function-name="colorizeImage"/>
+
+    <!-- ImageUtils: internal cache key helpers -->
     <rejection class="" function-name="getColorizedPixmapKey"/>
     <rejection class="" function-name="getTintedPixmapKey"/>
-    <rejection class="" function-name="makeRoundedPixmap"/>
-    <rejection class="" function-name="makeFitPixmap"/>
-    <rejection class="" function-name="getImageAspectRatio"/>
-    <rejection class="" function-name="getExtendedImage"/>
-    <rejection class="" function-name="getBlurredPixmap"/>
-    <rejection class="" function-name="getDropShadowPixmap"/>
-    <rejection class="" function-name="blurRadiusNecessarySpace"/>
-    <rejection class="" function-name="makeIconFromSvg"/>
-    <rejection class="" function-name="makeIconFromSvgData"/>
-    <rejection class="" function-name="getContrastRatio"/>
-    <rejection class="" function-name="colorWithAlphaF"/>
-    <rejection class="" function-name="colorWithAlpha"/>
-    <rejection class="" function-name="getColorSourceOver"/>
+
+    <!-- ColorUtils: std::optional<QColor> returns -->
     <rejection class="" function-name="tryGetColorFromVariantList"/>
     <rejection class="" function-name="tryGetColorFromRGBAString"/>
     <rejection class="" function-name="tryGetColorFromHexaString"/>
     <rejection class="" function-name="tryGetColorFromVariant"/>
-    <rejection class="" function-name="toHexRGB"/>
-    <rejection class="" function-name="toHexRGBA"/>
+
+    <!-- BadgeUtils: std::pair return -->
     <rejection class="" function-name="getStatusBadgeSizes"/>
-    <rejection class="" function-name="drawStatusBadge"/>
+
+    <!-- PrimitiveUtils: std::tuple return -->
+    <rejection class="" function-name="getMenuLabelAndShortcut"/>
+    <!-- PrimitiveUtils: PixmapMakerFunc (std::function) parameter -->
+    <rejection class="" function-name="updateUncheckableButtonIconPixmap"/>
+    <!-- PrimitiveUtils: QIcon& mutation + QlementineStyle ref -->
+    <rejection class="" function-name="updateCheckIcon"/>
+    <rejection class="" function-name="updateMessageBoxWarningIcon"/>
+    <rejection class="" function-name="updateMessageBoxCriticalIcon"/>
+    <rejection class="" function-name="updateMessageBoxQuestionIcon"/>
+    <rejection class="" function-name="updateMessageBoxInformationIcon"/>
+
+    <!-- StyleUtils: std::tuple return -->
+    <rejection class="" function-name="getHPaddings"/>
+
+    <!-- LayoutUtils: std::tuple returns -->
+    <rejection class="" function-name="getHLayoutProps"/>
+    <rejection class="" function-name="getVLayoutProps"/>
+    <rejection class="" function-name="getFormLayoutProps"/>
+
+    <!-- MenuUtils: std::function parameter -->
+    <rejection class="" function-name="flashAction"/>
 
     <!-- ====== REJECTED METHODS: std::function parameters ======
          Shiboken cannot marshal std::function<> types.

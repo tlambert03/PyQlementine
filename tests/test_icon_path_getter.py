@@ -6,7 +6,6 @@ from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
-
 from _qt_compat import QIcon, Qlementine, QSize
 
 QlementineStyle = Qlementine.QlementineStyle

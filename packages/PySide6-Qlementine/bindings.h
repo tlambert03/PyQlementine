@@ -11,8 +11,18 @@
 // Core types
 #include <oclero/qlementine/Common.hpp>
 #include <oclero/qlementine/utils/RadiusesF.hpp>
+#include <oclero/qlementine/utils/BadgeUtils.hpp>
+#include <oclero/qlementine/utils/ColorUtils.hpp>
+#include <oclero/qlementine/utils/FontUtils.hpp>
+#include <oclero/qlementine/utils/GeometryUtils.hpp>
 #include <oclero/qlementine/utils/IconUtils.hpp>
 #include <oclero/qlementine/utils/ImageUtils.hpp>
+#include <oclero/qlementine/utils/LayoutUtils.hpp>
+#include <oclero/qlementine/utils/MenuUtils.hpp>
+#include <oclero/qlementine/utils/PrimitiveUtils.hpp>
+#include <oclero/qlementine/utils/StateUtils.hpp>
+#include <oclero/qlementine/utils/StyleUtils.hpp>
+#include <oclero/qlementine/utils/WidgetUtils.hpp>
 
 // Style
 #include <oclero/qlementine/style/Theme.hpp>
