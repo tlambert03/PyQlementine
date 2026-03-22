@@ -6,32 +6,10 @@
     <load-typesystem name="typesystem_widgets.xml" generate="no"/>
 
     <!-- ====== REJECTED FREE FUNCTIONS ======
-         These are internal C++ utilities that either generate broken shiboken
-         overload code or operate on types not exposed in our bindings. -->
-    <rejection class="oclero::qlementine" function-name="appStyle"/>
-    <rejection class="" function-name="colorizeImage"/>
-    <rejection class="" function-name="getColorizedPixmapKey"/>
-    <rejection class="" function-name="getTintedPixmapKey"/>
-    <rejection class="" function-name="makeRoundedPixmap"/>
-    <rejection class="" function-name="makeFitPixmap"/>
-    <rejection class="" function-name="getImageAspectRatio"/>
-    <rejection class="" function-name="getExtendedImage"/>
-    <rejection class="" function-name="getBlurredPixmap"/>
-    <rejection class="" function-name="getDropShadowPixmap"/>
-    <rejection class="" function-name="blurRadiusNecessarySpace"/>
-    <rejection class="" function-name="makeIconFromSvg"/>
-    <rejection class="" function-name="getContrastRatio"/>
-    <rejection class="" function-name="colorWithAlphaF"/>
-    <rejection class="" function-name="colorWithAlpha"/>
-    <rejection class="" function-name="getColorSourceOver"/>
-    <rejection class="" function-name="tryGetColorFromVariantList"/>
-    <rejection class="" function-name="tryGetColorFromRGBAString"/>
-    <rejection class="" function-name="tryGetColorFromHexaString"/>
-    <rejection class="" function-name="tryGetColorFromVariant"/>
-    <rejection class="" function-name="toHexRGB"/>
-    <rejection class="" function-name="toHexRGBA"/>
-    <rejection class="" function-name="getStatusBadgeSizes"/>
-    <rejection class="" function-name="drawStatusBadge"/>
+         Shiboken generates broken overload code for namespace-level free
+         functions.  All utils are exposed via the UtilsBridge wrapper class
+         instead (static methods work correctly). -->
+    <rejection class="oclero::qlementine" function-name="*"/>
 
     <!-- ====== REJECTED METHODS: std::function parameters ======
          Shiboken cannot marshal std::function<> types.
@@ -79,6 +57,13 @@
             <enum-type name="StatusBadge"/>
             <enum-type name="StatusBadgeSize"/>
             <enum-type name="ColorizeMode"/>
+
+            <!-- ====== UTILS BRIDGE ======
+                 Wraps namespace-level free functions as static methods
+                 to work around shiboken's broken overload code generation
+                 for free functions.  Python-side utils.py re-exports these
+                 as module-level functions. -->
+            <value-type name="UtilsBridge"/>
 
             <!-- ====== VALUE TYPES ====== -->
 

@@ -77,34 +77,246 @@ def main() -> None:
         text,
     )
 
-    dest.write_text(text)
+    # Split stubs into __init__.pyi (types) and utils.pyi (functions).
+    # shiboken6-genpyi may generate UtilsBridge as a class or skip it entirely.
+    # Either way, _split_stubs handles both cases (extracts methods from class
+    # or passes through top-level defs).
+    init_pyi, utils_pyi = _split_stubs(text)
+
+    # If no utils functions were extracted (shiboken skipped UtilsBridge),
+    # generate them by introspecting the UtilsBridge class signatures.
+    if utils_pyi.rstrip().endswith("from . import *"):
+        utils_pyi = _generate_utils_stubs_from_bridge(utils_pyi)
+
+    dest.write_text(init_pyi)
+    utils_dest = dest.parent / "utils.pyi"
+    utils_dest.write_text(utils_pyi)
     generated.unlink()
 
     # Run ruff to clean up the generated stubs (best-effort)
-    if ruff := shutil.which("ruff"):
-        ruff_args = ["--target-version", "py310"]
-        subprocess.run(
-            [
-                ruff,
-                "check",
-                *ruff_args,
-                "--fix",
-                "--unsafe-fixes",
-                str(dest),
-                "--select",
-                "E,F,W,I,UP,RUF",
-                "--ignore",
-                "E501",
-                "--quiet",
-            ],
-            check=False,
-        )
-        subprocess.run(
-            [ruff, "format", *ruff_args, str(dest), "--line-length", "116"],
-            check=False,
-        )
+    for stub_path in (dest, utils_dest):
+        _run_ruff(stub_path)
 
-    print(f"Wrote stubs to {dest}")
+    print(f"Wrote stubs to {dest} and {utils_dest}")
+
+
+def _split_stubs(content: str) -> tuple[str, str]:
+    """Split a flat .pyi into (__init__.pyi, utils.pyi).
+
+    Classes/enums/imports + ``appStyle`` go to __init__.pyi.
+    Top-level ``def`` blocks (except ``appStyle``) go to utils.pyi.
+    The ``UtilsBridge`` class is unwrapped: its static methods are extracted
+    as module-level ``def`` statements in utils.pyi (``appStyle`` is kept in
+    __init__.pyi), and the class itself is excluded from __init__.pyi.
+    """
+    lines = content.split("\n")
+    init_lines: list[str] = []
+    utils_lines: list[str] = []
+    pending_decorators: list[str] = []
+
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+
+        if line.startswith("@"):
+            pending_decorators.append(line)
+            i += 1
+        elif line.startswith("def "):
+            block = [line]
+            i += 1
+            while i < len(lines) and lines[i].startswith((" ", "\t")):
+                block.append(lines[i])
+                i += 1
+
+            func_name = line.split("(")[0].removeprefix("def ").strip()
+            if func_name == "appStyle":
+                init_lines.extend(pending_decorators)
+                init_lines.extend(block)
+            else:
+                utils_lines.extend(pending_decorators)
+                utils_lines.extend(block)
+            pending_decorators.clear()
+        elif line.startswith("class UtilsBridge"):
+            # Extract static methods from UtilsBridge as module-level defs
+            i += 1
+            method_decorators: list[str] = []
+            while i < len(lines) and (
+                lines[i].startswith((" ", "\t")) or lines[i].strip() == ""
+            ):
+                inner = lines[i]
+                stripped = inner.strip()
+                if stripped == "":
+                    i += 1
+                    continue
+                if stripped.startswith("@"):
+                    # Keep @overload, drop @staticmethod
+                    if "staticmethod" not in stripped:
+                        method_decorators.append(stripped)
+                    i += 1
+                elif stripped.startswith("def "):
+                    # Remove 'self' first arg if present, dedent to top level
+                    dedented = stripped
+                    method_block = [dedented]
+                    i += 1
+                    while i < len(lines) and lines[i].startswith(
+                        (" ", "\t")
+                    ):
+                        # Dedent method body (8 spaces -> 4 spaces)
+                        body = lines[i]
+                        if body.startswith("        "):
+                            body = body[4:]
+                        method_block.append(body)
+                        i += 1
+
+                    func_name = dedented.split("(")[0].removeprefix("def ").strip()
+                    if func_name == "appStyle":
+                        init_lines.extend(method_decorators)
+                        init_lines.extend(method_block)
+                    else:
+                        utils_lines.extend(method_decorators)
+                        utils_lines.extend(method_block)
+                    method_decorators.clear()
+                else:
+                    i += 1
+            pending_decorators.clear()
+        else:
+            init_lines.extend(pending_decorators)
+            pending_decorators.clear()
+            init_lines.append(line)
+            i += 1
+
+    # utils.pyi needs the same import header plus re-import of our types
+    header: list[str] = []
+    for ln in init_lines:
+        if ln.startswith(("import ", "from ", "#", "try:", "    ", "except")):
+            header.append(ln)
+        elif ln.strip() == "" and header:
+            header.append(ln)
+        else:
+            break
+
+    utils_header = "\n".join(header).rstrip() + "\n\nfrom . import *\n\n"
+    init_pyi = "\n".join(init_lines)
+    utils_pyi = utils_header + "\n".join(utils_lines) + "\n"
+
+    init_pyi = init_pyi.rstrip() + "\n\nfrom . import utils as utils\n"
+
+    return init_pyi, utils_pyi
+
+
+def _generate_utils_stubs_from_bridge(header: str) -> str:
+    """Generate utils.pyi by introspecting UtilsBridge static method signatures."""
+    import inspect
+    import typing
+
+    from shibokensupport.signature import get_signature  # type: ignore
+
+    bridge = PySide6Qlementine.PySide6Qlementine.UtilsBridge
+    lines = [header.rstrip(), ""]
+    seen: dict[str, list[str]] = {}
+
+    for name in sorted(dir(bridge)):
+        if name.startswith("_") or name == "appStyle":
+            continue
+        obj = getattr(bridge, name)
+        if not callable(obj):
+            continue
+        try:
+            sigs = get_signature(obj)
+        except Exception:
+            lines.append(f"def {name}(*args, **kwargs): ...")
+            continue
+
+        if not isinstance(sigs, list):
+            sigs = [sigs]
+
+        entries: list[str] = []
+        for sig in sigs:
+            params: list[str] = []
+            for pname, param in sig.parameters.items():
+                if pname == "self":
+                    continue
+                ann = _format_annotation(param.annotation)
+                if param.default is not inspect.Parameter.empty:
+                    params.append(f"{pname}: {ann} = ...")
+                else:
+                    params.append(f"{pname}: {ann}")
+            ret = _format_annotation(sig.return_annotation)
+            if ret == "None":
+                ret_str = " -> None"
+            elif ret == "inspect.Parameter.empty":
+                ret_str = ""
+            else:
+                ret_str = f" -> {ret}"
+            entries.append(f"def {name}({', '.join(params)}){ret_str}: ...")
+
+        if len(entries) > 1:
+            for entry in entries:
+                lines.append("@typing.overload")
+                lines.append(entry)
+        else:
+            lines.extend(entries)
+
+    return "\n".join(lines) + "\n"
+
+
+def _format_annotation(ann: object) -> str:
+    """Format a type annotation for stub output."""
+    import inspect
+    import types
+    import typing
+
+    if ann is inspect.Parameter.empty or ann is None:
+        return "None"
+    if ann is type(None):
+        return "None"
+    if isinstance(ann, str):
+        return ann
+
+    origin = getattr(ann, "__origin__", None)
+    args = getattr(ann, "__args__", None)
+
+    if origin is typing.Union or origin is types.UnionType:
+        parts = [_format_annotation(a) for a in (args or ())]
+        return " | ".join(parts)
+    if origin is not None and args:
+        origin_name = _format_annotation(origin)
+        arg_strs = ", ".join(_format_annotation(a) for a in args)
+        return f"{origin_name}[{arg_strs}]"
+
+    if hasattr(ann, "__module__") and hasattr(ann, "__qualname__"):
+        mod = ann.__module__
+        name = ann.__qualname__
+        # Strip module prefix for builtins and our own module
+        if mod == "builtins":
+            return name
+        if mod == "PySide6Qlementine":
+            return f'"{name}"'
+        # Use PySide6 short names
+        for prefix in ("PySide6.QtCore.", "PySide6.QtGui.", "PySide6.QtWidgets."):
+            full = f"{mod}.{name}"
+            if full.startswith(prefix):
+                return full
+        return f"{mod}.{name}"
+
+    return str(ann)
+
+
+def _run_ruff(path: Path) -> None:
+    if not (ruff := shutil.which("ruff")):
+        return
+    ruff_args = ["--target-version", "py310"]
+    subprocess.run(
+        [
+            ruff, "check", *ruff_args, "--fix", "--unsafe-fixes",
+            str(path), "--select", "E,F,W,I,UP,RUF", "--ignore", "E501", "--quiet",
+        ],
+        check=False,
+    )
+    subprocess.run(
+        [ruff, "format", *ruff_args, str(path), "--line-length", "116"],
+        check=False,
+    )
 
 
 if __name__ == "__main__":

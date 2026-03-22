@@ -9,6 +9,16 @@ set(CMAKE_AUTORCC ON)
 # ---- Find Python ----
 find_package(Python REQUIRED COMPONENTS Interpreter Development.Module)
 
+# ---- Generate UtilsBridge.hpp from PyQt6 SIP files ----
+execute_process(
+    COMMAND ${Python_EXECUTABLE}
+        "${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate_utils_bridge.py"
+    RESULT_VARIABLE _gen_rc
+)
+if(NOT _gen_rc EQUAL 0)
+    message(FATAL_ERROR "generate_utils_bridge.py failed (rc=${_gen_rc})")
+endif()
+
 # ---- Detect site-packages for Shiboken6Tools ----
 execute_process(
     COMMAND ${Python_EXECUTABLE} -c
@@ -168,6 +178,7 @@ set(WRAPPER_SOURCES
     ${GENERATED_DIR}/oclero_qlementine_theme_wrapper.cpp
     ${GENERATED_DIR}/oclero_qlementine_thememanager_wrapper.cpp
     ${GENERATED_DIR}/oclero_qlementine_thememeta_wrapper.cpp
+    ${GENERATED_DIR}/oclero_qlementine_utilsbridge_wrapper.cpp
 )
 
 # Compute Qt framework search path for shiboken on macOS
@@ -248,6 +259,9 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E copy
         "${CMAKE_CURRENT_SOURCE_DIR}/PySide6Qlementine/__init__.py"
         "${STUB_PKG}/__init__.py"
+    COMMAND ${CMAKE_COMMAND} -E copy
+        "${CMAKE_CURRENT_SOURCE_DIR}/PySide6Qlementine/utils.py"
+        "${STUB_PKG}/utils.py"
     COMMAND ${CMAKE_COMMAND} -E create_symlink
         "$<TARGET_FILE:PySide6Qlementine>"
         "${STUB_PKG}/$<TARGET_FILE_NAME:PySide6Qlementine>"
@@ -265,4 +279,9 @@ install(TARGETS PySide6Qlementine
     LIBRARY DESTINATION PySide6Qlementine
     RUNTIME DESTINATION PySide6Qlementine
 )
-install(FILES ${STUB_OUTPUT} DESTINATION PySide6Qlementine)
+install(FILES
+    ${STUB_OUTPUT}
+    ${STUB_PKG}/utils.pyi
+    "${CMAKE_CURRENT_SOURCE_DIR}/PySide6Qlementine/utils.py"
+    DESTINATION PySide6Qlementine
+)
