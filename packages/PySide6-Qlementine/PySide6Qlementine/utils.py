@@ -2,16 +2,15 @@
 
 
 def _init():
-    import types
     from . import PySide6Qlementine as _ql
 
+    bridge = _ql.UtilsBridge
     ns = globals()
-    for name in dir(_ql):
-        if name.startswith("_"):
+    _excluded = frozenset({"appStyle"})
+    for name in dir(bridge):
+        if name.startswith("_") or name in _excluded:
             continue
-        obj = getattr(_ql, name)
-        if isinstance(obj, types.BuiltinFunctionType):
-            ns[name] = obj
+        ns[name] = getattr(bridge, name)
 
 
 _init()

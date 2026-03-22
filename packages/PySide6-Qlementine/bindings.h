@@ -24,6 +24,9 @@
 #include <oclero/qlementine/utils/StyleUtils.hpp>
 #include <oclero/qlementine/utils/WidgetUtils.hpp>
 
+// Static-method bridge for shiboken (free functions don't work)
+#include "UtilsBridge.hpp"
+
 // Style
 #include <oclero/qlementine/style/Theme.hpp>
 #include <oclero/qlementine/style/QlementineStyle.hpp>

@@ -168,6 +168,7 @@ set(WRAPPER_SOURCES
     ${GENERATED_DIR}/oclero_qlementine_theme_wrapper.cpp
     ${GENERATED_DIR}/oclero_qlementine_thememanager_wrapper.cpp
     ${GENERATED_DIR}/oclero_qlementine_thememeta_wrapper.cpp
+    ${GENERATED_DIR}/oclero_qlementine_utilsbridge_wrapper.cpp
 )
 
 # Compute Qt framework search path for shiboken on macOS

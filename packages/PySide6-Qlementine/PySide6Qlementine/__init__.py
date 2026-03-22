@@ -29,13 +29,16 @@ def _init():
     from . import PySide6Qlementine as _ql
 
     ns = globals()
-    _promoted = frozenset({"appStyle"})
+    _excluded = frozenset({"UtilsBridge"})
     for name in dir(_ql):
-        if name.startswith("_"):
+        if name.startswith("_") or name in _excluded:
             continue
         obj = getattr(_ql, name)
-        if not isinstance(obj, types.BuiltinFunctionType) or name in _promoted:
+        if not isinstance(obj, types.BuiltinFunctionType):
             ns[name] = obj
+
+    # appStyle lives on UtilsBridge (free functions are rejected by shiboken)
+    ns["appStyle"] = _ql.UtilsBridge.appStyle
 
 _init()
 del _init
