@@ -91,3 +91,5 @@ git tag -a "pyqt6/v1.4.2.0" -m "pyqt6-qlementine v1.4.2.0"
 git tag -a "pyside6/v1.4.2.0" -m "pyside6-qlementine v1.4.2.0"
 git push upstream --follow-tags
 ```
+
+(or juse `just release v1.4.2.0` to create and push both tags at once)
