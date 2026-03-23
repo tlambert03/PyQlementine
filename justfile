@@ -82,9 +82,12 @@ install-qt qt_version="6.8.1":
 
 # point the qlementine submodule to a specific commit (default: origin/dev HEAD)
 update-submodule sha="origin/dev":
+    git submodule update --init --recursive
+    git -C qlementine restore .
     git -C qlementine fetch origin
     git -C qlementine checkout {{ sha }}
     git add qlementine
+    @just _patch
 
 _clone:
     git submodule update --init --recursive
