@@ -16,6 +16,7 @@ QPixmapCache = QtGui.QPixmapCache
 QSize = QtCore.QSize
 QPoint = QtCore.QPoint
 QRect = QtCore.QRect
+QRectF = QtCore.QRectF
 Qt = QtCore.Qt
 
 # blur sigma conversion factor matching C++ pixelToSigma
@@ -256,7 +257,7 @@ def _renderSvg(
     painter.setRenderHint(
         QPainter.RenderHint.Antialiasing, True
     )
-    renderer.render(painter, pixmap.rect())
+    renderer.render(painter, QRectF(pixmap.rect()))
     painter.end()
     return pixmap
 

@@ -266,15 +266,15 @@ class QlementineStyleMetricsMixin:
         if sh == SH.SH_TabBar_Alignment:
             return int(Qt.AlignmentFlag.AlignLeft)
         if sh == SH.SH_TabBar_ElideMode:
-            return int(Qt.TextElideMode.ElideNone)
+            return Qt.TextElideMode.ElideNone.value
         if sh == SH.SH_TabBar_CloseButtonPosition:
-            return int(QTabBar.ButtonPosition.RightSide)
+            return QTabBar.ButtonPosition.RightSide.value
         if sh == SH.SH_TabBar_ChangeCurrentDelay:
             return 500
         if sh == SH.SH_TabBar_PreferNoArrows:
             return False
         if sh == SH.SH_TabWidget_DefaultTabPosition:
-            return int(QTabWidget.TabPosition.North)
+            return QTabWidget.TabPosition.North.value
         if sh == SH.SH_Slider_SnapToValue:
             return True
         if sh == SH.SH_Slider_SloppyKeyEvents:
@@ -282,9 +282,9 @@ class QlementineStyleMetricsMixin:
         if sh == SH.SH_Slider_StopMouseOverSlider:
             return True
         if sh == SH.SH_Slider_AbsoluteSetButtons:
-            return int(Qt.MouseButton.LeftButton)
+            return Qt.MouseButton.LeftButton.value
         if sh == SH.SH_Slider_PageSetButtons:
-            return int(Qt.MouseButton.LeftButton)
+            return Qt.MouseButton.LeftButton.value
         if sh == SH.SH_ProgressDialog_CenterCancelButton:
             return False
         if sh == SH.SH_ProgressDialog_TextLabelAlignment:
@@ -296,10 +296,10 @@ class QlementineStyleMetricsMixin:
         if sh == SH.SH_DialogButtonBox_ButtonsHaveIcons:
             return False
         if sh == SH.SH_MessageBox_TextInteractionFlags:
-            return int(
+            return (
                 Qt.TextInteractionFlag.LinksAccessibleByKeyboard
                 | Qt.TextInteractionFlag.LinksAccessibleByMouse
-            )
+            ).value
         if sh == SH.SH_MessageBox_CenterButtons:
             return False
         if sh == SH.SH_Menu_AllowActiveAndDisabled:
@@ -340,8 +340,9 @@ class QlementineStyleMetricsMixin:
             return int(QFrame.Shape.StyledPanel) | int(
                 QFrame.Shadow.Plain
             )
-        if sh == SH.SH_ComboBox_UseNativePopup:
-            return False
+        if hasattr(SH, "SH_ComboBox_UseNativePopup"):
+            if sh == SH.SH_ComboBox_UseNativePopup:
+                return False
         if sh == SH.SH_ComboBox_AllowWheelScrolling:
             return False
         if sh == SH.SH_TitleBar_ShowToolTipsOnButtons:
@@ -351,9 +352,11 @@ class QlementineStyleMetricsMixin:
         if sh == SH.SH_GroupBox_TextLabelVerticalAlignment:
             return int(Qt.AlignmentFlag.AlignVCenter)
         if sh == SH.SH_GroupBox_TextLabelColor:
-            return int(theme.secondaryColor.rgba())
+            v = theme.secondaryColor.rgba() & 0xFFFFFFFF
+            return v - (1 << 32) if v >= (1 << 31) else v
         if sh == SH.SH_Table_GridLineColor:
-            return int(self.tableLineColor().rgba())
+            v = self.tableLineColor().rgba() & 0xFFFFFFFF
+            return v - (1 << 32) if v >= (1 << 31) else v
         if sh == SH.SH_Header_ArrowAlignment:
             return int(
                 Qt.AlignmentFlag.AlignRight
@@ -368,7 +371,7 @@ class QlementineStyleMetricsMixin:
         if sh == SH.SH_SpinBox_ButtonsInsideFrame:
             return False
         if sh == SH.SH_SpinBox_StepModifier:
-            return int(Qt.KeyboardModifier.ControlModifier)
+            return Qt.KeyboardModifier.ControlModifier.value
         if sh == SH.SH_SpinBox_ClickAutoRepeatThreshold:
             return 500
         if sh == SH.SH_SpinControls_DisableOnBounds:
@@ -405,7 +408,7 @@ class QlementineStyleMetricsMixin:
         if sh == SH.SH_ItemView_DrawDelegateFrame:
             return False
         if sh == SH.SH_ItemView_ScrollMode:
-            return int(QAbstractItemView.ScrollMode.ScrollPerPixel)
+            return QAbstractItemView.ScrollMode.ScrollPerPixel.value
         if sh == SH.SH_LineEdit_PasswordCharacter:
             return 0x2022  # Bullet
         if sh == SH.SH_LineEdit_PasswordMaskDelay:
@@ -415,17 +418,17 @@ class QlementineStyleMetricsMixin:
         if sh == SH.SH_ToolBar_Movable:
             return False
         if sh == SH.SH_ToolButtonStyle:
-            return int(Qt.ToolButtonStyle.ToolButtonIconOnly)
+            return Qt.ToolButtonStyle.ToolButtonIconOnly.value
         if sh == SH.SH_FormLayoutFieldGrowthPolicy:
-            return int(
-                QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow
+            return (
+                QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow.value
             )
         if sh == SH.SH_FormLayoutFormAlignment:
             return int(Qt.AlignmentFlag.AlignLeft)
         if sh == SH.SH_FormLayoutLabelAlignment:
             return int(Qt.AlignmentFlag.AlignLeft)
         if sh == SH.SH_FormLayoutWrapPolicy:
-            return int(QFormLayout.RowWrapPolicy.WrapLongRows)
+            return QFormLayout.RowWrapPolicy.WrapLongRows.value
         if sh == SH.SH_ToolTip_WakeUpDelay:
             return 700
         if sh == SH.SH_ToolTip_FallAsleepDelay:
@@ -865,7 +868,8 @@ class QlementineStyleMetricsMixin:
                     & QStyle.SubControl.SC_GroupBoxCheckBox
                 )
                 hasFrame = not bool(
-                    optGB.features & QFrame.Shadow.Plain
+                    optGB.features
+                    & QtWidgets.QStyleOptionFrame.FrameFeature.Flat
                 )
                 fm = QFontMetrics(theme.fontH5)
                 labelH = (
@@ -1557,7 +1561,8 @@ class QlementineStyleMetricsMixin:
                     optGB.subControls & SC.SC_GroupBoxCheckBox
                 )
                 hasFrame = not bool(
-                    optGB.features & QFrame.Shadow.Plain
+                    optGB.features
+                    & QtWidgets.QStyleOptionFrame.FrameFeature.Flat
                 )
                 labelH = (
                     max(

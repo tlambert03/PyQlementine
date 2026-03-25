@@ -49,6 +49,17 @@ class RadiusesF:
             and self.bottomLeft == other.bottomLeft
         )
 
+    def __add__(self, other: float | int) -> RadiusesF:
+        return RadiusesF(
+            self.topLeft + other,
+            self.topRight + other,
+            self.bottomRight + other,
+            self.bottomLeft + other,
+        )
+
+    def __radd__(self, other: float | int) -> RadiusesF:
+        return self.__add__(other)
+
     def __repr__(self) -> str:
         return (
             f"RadiusesF({self.topLeft}, {self.topRight}, "

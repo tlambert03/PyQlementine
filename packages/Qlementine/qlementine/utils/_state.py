@@ -46,14 +46,14 @@ __all__ = [
 
 
 def getMouseState(
-    flags_or_hovered: QStyle.StateFlag | bool,
-    pressed: bool | None = None,
+    flags_or_pressed: QStyle.StateFlag | bool,
+    hovered: bool | None = None,
     enabled: bool | None = None,
 ) -> MouseState:
-    """Get MouseState from QStyle.StateFlag or (hovered, pressed, enabled)."""
-    if pressed is not None:
-        # Called as getMouseState(hovered, pressed, enabled)
-        hovered = bool(flags_or_hovered)
+    """Get MouseState from QStyle.StateFlag or (pressed, hovered, enabled)."""
+    if hovered is not None:
+        # Called as getMouseState(pressed, hovered, enabled)
+        pressed = bool(flags_or_pressed)
         en = enabled if enabled is not None else True
         if not en:
             return MouseState.Disabled
@@ -63,7 +63,7 @@ def getMouseState(
             return MouseState.Hovered
         return MouseState.Normal
     # Called with QStyle.StateFlag
-    state = QStyle.StateFlag(int(flags_or_hovered))
+    state = flags_or_hovered
     if not (state & QStyle.StateFlag.State_Enabled):
         return MouseState.Disabled
     if state & QStyle.StateFlag.State_Sunken:
@@ -75,7 +75,6 @@ def getMouseState(
 
 def getToolButtonMouseState(state: QStyle.StateFlag) -> MouseState:
     """Get MouseState for a tool button."""
-    state = QStyle.StateFlag(int(state))
     if not (state & QStyle.StateFlag.State_Enabled):
         return MouseState.Disabled
     if state & QStyle.StateFlag.State_Sunken:
@@ -95,7 +94,7 @@ def getMenuItemMouseState(state: QStyle.StateFlag) -> MouseState:
 
 def getComboBoxItemMouseState(state: QStyle.StateFlag) -> MouseState:
     """Get MouseState for a combo box item."""
-    state = QStyle.StateFlag(int(state))
+    # state is already a QStyle.StateFlag
     if not (state & QStyle.StateFlag.State_Enabled):
         return MouseState.Disabled
     if state & QStyle.StateFlag.State_Sunken:
@@ -109,7 +108,7 @@ def getTabItemMouseState(
     state: QStyle.StateFlag, tabIsHovered: bool
 ) -> MouseState:
     """Get MouseState for a tab item."""
-    state = QStyle.StateFlag(int(state))
+    # state is already a QStyle.StateFlag
     selected = bool(state & QStyle.StateFlag.State_Selected)
     if selected or tabIsHovered:
         if not (state & QStyle.StateFlag.State_Enabled):
@@ -140,8 +139,7 @@ def getColorRole(
             else ColorRole.Secondary
         )
     # QStyle.StateFlag
-    state = QStyle.StateFlag(int(checked_or_state))
-    on = bool(state & QStyle.StateFlag.State_On)
+    on = bool(checked_or_state & QStyle.StateFlag.State_On)
     return getColorRole(on, isDefault)
 
 
@@ -161,7 +159,7 @@ def getScrollBarHandleState(
     activeSubControls: QStyle.SubControl,
 ) -> MouseState:
     """Get MouseState for scroll bar handle."""
-    state = QStyle.StateFlag(int(state))
+    # state is already a QStyle.StateFlag
     handleActive = (
         activeSubControls == QStyle.SubControl.SC_ScrollBarSlider
         and state
@@ -183,10 +181,9 @@ def getFocusState(
         return (
             FocusState.Focused if flags_or_bool else FocusState.NotFocused
         )
-    state = QStyle.StateFlag(int(flags_or_bool))
     return (
         FocusState.Focused
-        if state & QStyle.StateFlag.State_HasFocus
+        if flags_or_bool & QStyle.StateFlag.State_HasFocus
         else FocusState.NotFocused
     )
 
@@ -208,17 +205,16 @@ def getCheckState(
             return CheckState.Indeterminate
         return CheckState.NotChecked
     # QStyle.StateFlag
-    state = QStyle.StateFlag(int(flags_or_bool))
-    if state & QStyle.StateFlag.State_On:
+    if flags_or_bool & QStyle.StateFlag.State_On:
         return CheckState.Checked
-    if state & QStyle.StateFlag.State_NoChange:
+    if flags_or_bool & QStyle.StateFlag.State_NoChange:
         return CheckState.Indeterminate
     return CheckState.NotChecked
 
 
 def getActiveState(state: QStyle.StateFlag) -> ActiveState:
     """Get ActiveState from QStyle.StateFlag."""
-    state = QStyle.StateFlag(int(state))
+    # state is already a QStyle.StateFlag
     return (
         ActiveState.Active
         if state & QStyle.StateFlag.State_Active
@@ -228,7 +224,7 @@ def getActiveState(state: QStyle.StateFlag) -> ActiveState:
 
 def getSelectionState(state: QStyle.StateFlag) -> SelectionState:
     """Get SelectionState from QStyle.StateFlag."""
-    state = QStyle.StateFlag(int(state))
+    # state is already a QStyle.StateFlag
     return (
         SelectionState.Selected
         if state & QStyle.StateFlag.State_Selected
@@ -240,10 +236,10 @@ def getAlternateState(
     features: int,
 ) -> AlternateState:
     """Get AlternateState from QStyleOptionViewItem features."""
-    # QStyleOptionViewItem.Alternate is 0x02
+    VIF = QtWidgets.QStyleOptionViewItem.ViewItemFeature
     return (
         AlternateState.Alternate
-        if features & 0x02
+        if features & VIF.Alternate
         else AlternateState.NotAlternate
     )
 
@@ -290,8 +286,7 @@ def getPaletteColorGroup(
         if state_or_mouse == MouseState.Pressed:
             return QPalette.ColorGroup.Active
         return QPalette.ColorGroup.Normal
-    state = QStyle.StateFlag(int(state_or_mouse))
-    if not (state & QStyle.StateFlag.State_Enabled):
+    if not (state_or_mouse & QStyle.StateFlag.State_Enabled):
         return QPalette.ColorGroup.Disabled
     return QPalette.ColorGroup.Normal
 

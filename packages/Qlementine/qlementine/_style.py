@@ -8,6 +8,8 @@ from typing import TYPE_CHECKING
 from qlementine._qt import QtCore, QtGui, QtWidgets, Signal
 from qlementine._enums import AutoIconColor, Status
 from qlementine._style_colors import QlementineStyleColorsMixin
+from qlementine._style_drawing import QlementineStyleDrawingMixin
+from qlementine._style_metrics import QlementineStyleMetricsMixin
 
 if TYPE_CHECKING:
     from qlementine._theme import Theme
@@ -25,7 +27,12 @@ __all__ = ["QlementineStyle", "appStyle"]
 _AUTO_ICON_COLOR_PROP = b"_qlementine_autoIconColor"
 
 
-class QlementineStyle(QlementineStyleColorsMixin, QCommonStyle):
+class QlementineStyle(
+    QlementineStyleDrawingMixin,
+    QlementineStyleMetricsMixin,
+    QlementineStyleColorsMixin,
+    QCommonStyle,
+):
     """Pure-Python port of oclero::qlementine::QlementineStyle."""
 
     # -- Signals -------------------------------------------------------
@@ -56,7 +63,7 @@ class QlementineStyle(QlementineStyleColorsMixin, QCommonStyle):
     # -- Constructor ---------------------------------------------------
 
     def __init__(self, parent: QtCore.QObject | None = None) -> None:
-        super().__init__(parent)
+        super().__init__()
         from qlementine._theme import Theme
 
         self._theme: Theme = Theme()
@@ -163,32 +170,6 @@ class QlementineStyle(QlementineStyleColorsMixin, QCommonStyle):
             style = app.style()
             if style is not None and hasattr(style, "polish"):
                 style.polish(app)
-
-    # -- QStyle overrides (stubs) --------------------------------------
-
-    def standardPalette(self) -> QPalette:
-        return QPalette(self._theme.palette)
-
-    def polish(self, arg: object) -> None:
-        if isinstance(arg, QPalette):
-            pal = self._theme.palette
-            for group in (
-                QPalette.ColorGroup.Active,
-                QPalette.ColorGroup.Inactive,
-                QPalette.ColorGroup.Disabled,
-            ):
-                for role_val in range(
-                    int(QPalette.ColorRole.NColorRoles)
-                ):
-                    cr = QPalette.ColorRole(role_val)
-                    arg.setColor(group, cr, pal.color(group, cr))
-        elif isinstance(arg, QApplication):
-            arg.setPalette(self.standardPalette())
-        elif isinstance(arg, QtWidgets.QWidget):
-            pass  # will be populated later
-
-    def unpolish(self, arg: object) -> None:
-        pass  # stub
 
     # -- Extended QStyle methods (stubs) -------------------------------
 

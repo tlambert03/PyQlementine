@@ -1172,12 +1172,12 @@ def drawShortcut(
         delta = textRect.topLeft() - bgRect.topLeft()
 
         translation = QPoint(rect.x() + x, rect.y()) + delta
-        if int(alignment) & int(Qt.AlignmentFlag.AlignHCenter):
+        if alignment & Qt.AlignmentFlag.AlignHCenter:
             translation.setX(
                 translation.x()
                 + (rect.width() - bgRect.width()) // 2
             )
-        if int(alignment) & int(Qt.AlignmentFlag.AlignVCenter):
+        if alignment & Qt.AlignmentFlag.AlignVCenter:
             translation.setY(
                 translation.y()
                 + (rect.height() - bgRect.height()) // 2
@@ -1273,7 +1273,7 @@ def drawElidedMultiLineText(
         if (
             i < lastLine or lastLine == lineCount - 1
         ) and line.naturalTextWidth() < maxWidth:
-            line.draw(p, rect.topLeft())
+            line.draw(p, QPointF(rect.topLeft()))
         else:
             lineText = removeTrailingWhitespaces(
                 textLayout.text()[
@@ -1726,7 +1726,7 @@ def getPixmap(
     cacheKey = (
         f"qlementine_icon_pixmap_{icon.cacheKey()}"
         f"_{iconSize.width()}_{iconSize.height()}"
-        f"_{dpr}_{int(iconMode)}_{int(iconState)}"
+        f"_{dpr}_{iconMode.value}_{iconState.value}"
     )
     result = QPixmapCache.find(cacheKey)
     if result is not None:
