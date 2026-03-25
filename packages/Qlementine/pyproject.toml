@@ -1,0 +1,28 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "Qlementine"
+version = "1.4.3.0rc1"
+requires-python = ">=3.10"
+description = "Pure Python implementation of Qlementine, a modern QStyle for desktop Qt6 applications"
+license = "MIT"
+classifiers = [
+	"Development Status :: 3 - Alpha",
+	"Intended Audience :: Developers",
+	"Operating System :: OS Independent",
+	"Programming Language :: Python :: 3",
+	"Topic :: Software Development :: Libraries :: Python Modules",
+	"Topic :: Software Development :: Widget Sets",
+	"Environment :: X11 Applications :: Qt",
+	"Typing :: Typed",
+]
+
+[project.optional-dependencies]
+pyqt6 = ["PyQt6>=6.8"]
+pyside6 = ["PySide6>=6.8"]
+
+[project.urls]
+Upstream = "https://github.com/oclero/qlementine"
+Homepage = "https://github.com/pyapp-kit/PyQlementine"

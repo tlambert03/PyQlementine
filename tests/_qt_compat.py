@@ -19,7 +19,10 @@ else:
 try:
     import PyQt6Qlementine as Qlementine
 except ImportError:
-    import PySide6Qlementine as Qlementine  # type: ignore
+    try:
+        import PySide6Qlementine as Qlementine  # type: ignore
+    except ImportError:
+        import qlementine as Qlementine  # type: ignore
 
 QJsonDocument = QtCore.QJsonDocument
 QMargins = QtCore.QMargins

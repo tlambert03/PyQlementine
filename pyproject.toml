@@ -12,10 +12,12 @@ members = ["packages/*"]
 [tool.uv.sources]
 PyQt6-Qlementine = { workspace = true }
 PySide6-Qlementine = { workspace = true }
+Qlementine = { workspace = true }
 
 [dependency-groups]
 pyside6 = ["PySide6-Qlementine"]
 pyqt6 = ["PyQt6-Qlementine"]
+qlementine = ["Qlementine"]
 test = ["pytest>=8.3.4", "pytest-qt>=4.5.0"]
 dev = [
 	{ "include-group" = "test" },

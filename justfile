@@ -41,6 +41,10 @@ clean:
     Remove-Item -ErrorAction SilentlyContinue aqtinstall.log
     Remove-Item -ErrorAction SilentlyContinue packages/PySide6-Qlementine/UtilsBridge.hpp
 
+# install pure-python qlementine
+install-qlementine:
+    uv pip install -e packages/Qlementine
+
 # run demo widget
 demo:
     uv run examples/demo.py
